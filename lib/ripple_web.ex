@@ -23,13 +23,15 @@ defmodule RippleWeb do
       import Plug.Conn
       import RippleWeb.Router.Helpers
       import RippleWeb.Gettext
+      import Canary.Plugs
     end
   end
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/ripple_web/templates",
-                        namespace: RippleWeb
+      use Phoenix.View,
+        root: "lib/ripple_web/templates",
+        namespace: RippleWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 2, view_module: 1]

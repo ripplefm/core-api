@@ -1,0 +1,26 @@
+defmodule RippleWeb.Helpers.JWTHelper do
+  import Joken
+
+  @key JOSE.JWK.from_pem_file(System.get_env("PUBLIC_KEY_LOCATION"))
+
+  def optional_verify(conn, _) do
+    with [auth_header] <- Plug.Conn.get_req_header(conn, "authorization"),
+         {:ok, claims} <- verify_header(auth_header) do
+      conn |> Plug.Conn.assign(:joken_claims, claims)
+    else
+      _ -> conn
+    end
+  end
+
+  defp verify_header(header) do
+    header
+    |> String.slice(String.length("Bearer "), String.length(header))
+    |> token
+    |> with_json_module(Poison)
+    |> with_signer(rs256(@key))
+    |> with_validation("iss", &(&1 == "ripple.fm"))
+    |> with_validation("iat", &(&1 <= current_time()))
+    |> with_validation("exp", &(&1 > current_time()))
+    |> verify!
+  end
+end
