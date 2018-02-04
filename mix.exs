@@ -20,7 +20,7 @@ defmodule Ripple.Mixfile do
   def application do
     [
       mod: {Ripple.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :httpoison]
     ]
   end
 
@@ -40,7 +40,8 @@ defmodule Ripple.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:joken, "~> 1.5.0"},
-      {:canary, "~> 1.1.1"}
+      {:canary, "~> 1.1.1"},
+      {:httpoison, "~> 1.0"}
     ]
   end
 
