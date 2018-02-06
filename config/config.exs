@@ -25,6 +25,18 @@ config :canary,
   repo: Ripple.Repo,
   unauthorized_handler: {RippleWeb.Helpers.AuthHelper, :unauthorized}
 
+# Configures event bus
+config :event_bus,
+  topics: [
+    :station_started,
+    :station_stopped,
+    :station_user_joined,
+    :station_user_left,
+    :station_track_started,
+    :station_track_finished,
+    :station_queue_track_added
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

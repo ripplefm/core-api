@@ -60,6 +60,7 @@ defmodule Ripple.Tracks do
     %Track{}
     |> Track.changeset(attrs)
     |> Repo.insert()
+    |> elem(1)
   end
 
   # def create_track(attrs \\ %{}) do

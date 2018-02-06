@@ -41,7 +41,9 @@ defmodule Ripple.Mixfile do
       {:cowboy, "~> 1.0"},
       {:joken, "~> 1.5.0"},
       {:canary, "~> 1.1.1"},
-      {:httpoison, "~> 1.0"}
+      {:httpoison, "~> 1.0"},
+      {:slugify, "~> 1.1.0"},
+      {:event_bus, "~> 1.0.0"}
     ]
   end
 
