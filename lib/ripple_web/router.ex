@@ -15,5 +15,7 @@ defmodule RippleWeb.Router do
       {:except, [:new, :edit, :update, :delete]},
       {:param, "slug"}
     ])
+
+    get("/users/me", UserController, :me)
   end
 end
