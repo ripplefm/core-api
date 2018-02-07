@@ -12,9 +12,8 @@ defmodule RippleWeb.Helpers.JWTHelper do
     end
   end
 
-  defp verify_header(header) do
-    header
-    |> String.slice(String.length("Bearer "), String.length(header))
+  def verify_token(jwt) do
+    jwt
     |> token
     |> with_json_module(Poison)
     |> with_signer(rs256(@key))
@@ -22,5 +21,11 @@ defmodule RippleWeb.Helpers.JWTHelper do
     |> with_validation("iat", &(&1 <= current_time()))
     |> with_validation("exp", &(&1 > current_time()))
     |> verify!
+  end
+
+  defp verify_header(header) do
+    header
+    |> String.slice(String.length("Bearer "), String.length(header))
+    |> verify_token
   end
 end

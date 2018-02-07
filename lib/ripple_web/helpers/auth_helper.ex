@@ -18,7 +18,7 @@ defmodule RippleWeb.Helpers.AuthHelper do
   def require_current_user(conn, _) do
     case Map.fetch(conn.assigns, :current_user) do
       {:ok, nil} -> unauthorized(conn, "Missing or invalid token in Authorization header.")
-      {:ok, user} -> conn
+      {:ok, _} -> conn
       _ -> unauthorized(conn, "Missing or invalid token in Authorization header.")
     end
   end

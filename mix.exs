@@ -43,7 +43,8 @@ defmodule Ripple.Mixfile do
       {:canary, "~> 1.1.1"},
       {:httpoison, "~> 1.0"},
       {:slugify, "~> 1.1.0"},
-      {:event_bus, "~> 1.0.0"}
+      {:event_bus, "~> 1.0.0"},
+      {:cors_plug, "~> 1.2"}
     ]
   end
 

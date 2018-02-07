@@ -10,5 +10,10 @@ defmodule RippleWeb.Router do
 
   scope "/", RippleWeb do
     pipe_through(:api)
+
+    resources("/stations", StationController, [
+      {:except, [:new, :edit, :update, :delete]},
+      {:param, "slug"}
+    ])
   end
 end
