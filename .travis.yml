@@ -1,0 +1,17 @@
+language: elixir
+
+elixir: '1.6.1'
+otp_release: '20.0'
+
+addons:
+  postgresql: '9.6'
+
+services:
+  - postgresql
+
+env:
+  - PRIVATE_KEY_LOCATION="test/support/private_key.pem" PUBLIC_KEY_LOCATION="test/support/public_key.pem"
+
+before_script: mix do ecto.create, ecto.migrate
+
+script: ./ci/run.sh

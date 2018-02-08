@@ -13,7 +13,7 @@ config :logger, level: :warn
 config :ripple, Ripple.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
-  password: "postgres",
+  password: "",
   database: "ripple_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
