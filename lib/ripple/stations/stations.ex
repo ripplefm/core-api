@@ -63,40 +63,6 @@ defmodule Ripple.Stations do
   end
 
   @doc """
-  Updates a station.
-
-  ## Examples
-
-      iex> update_station(station, %{field: new_value})
-      {:ok, %Station{}}
-
-      iex> update_station(station, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_station(%Station{} = station, attrs) do
-    station
-    |> Station.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Station.
-
-  ## Examples
-
-      iex> delete_station(station)
-      {:ok, %Station{}}
-
-      iex> delete_station(station)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_station(%Station{} = station) do
-    Repo.delete(station)
-  end
-
-  @doc """
   Returns an `%Ecto.Changeset{}` for tracking station changes.
 
   ## Examples

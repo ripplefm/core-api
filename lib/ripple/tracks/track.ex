@@ -4,7 +4,7 @@ defmodule Ripple.Tracks.Track do
   alias Ripple.Tracks.Track
 
   schema "tracks" do
-    field(:artwork_url, :string)
+    field(:artwork_url, :string, default: nil)
     field(:duration, :integer)
     field(:name, :string)
     field(:poster, :string)
@@ -18,7 +18,7 @@ defmodule Ripple.Tracks.Track do
   def changeset(%Track{} = track, attrs) do
     track
     |> cast(attrs, [:name, :artwork_url, :duration, :poster, :provider, :url])
-    |> validate_required([:name, :artwork_url, :duration, :poster, :provider, :url])
+    |> validate_required([:name, :duration, :poster, :provider, :url])
     |> validate_inclusion(:provider, ["YouTube", "SoundCloud"])
     |> unique_constraint(:url)
   end

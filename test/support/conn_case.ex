@@ -33,6 +33,27 @@ defmodule RippleWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(Ripple.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn =
+      if tags[:authenticated] do
+        token =
+          %{
+            scopes: ["user:email:read", "playlists:write", "stations:write"],
+            user: %{
+              username: "tester",
+              id: Ecto.UUID.generate()
+            }
+          }
+          |> RippleWeb.Helpers.JWTHelper.sign()
+
+        conn =
+          Phoenix.ConnTest.build_conn()
+          |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
+
+        conn
+      else
+        Phoenix.ConnTest.build_conn()
+      end
+
+    {:ok, conn: conn}
   end
 end

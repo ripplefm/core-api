@@ -19,16 +19,19 @@ defmodule Ripple.Stations.Station do
   def changeset(%Station{} = station, attrs) do
     station
     |> cast(attrs, [:name, :play_type, :tags, :creator_id])
-    |> generate_slug
-    |> validate_required([:name, :play_type, :slug, :tags, :creator_id])
+    |> validate_required([:name, :play_type, :tags, :creator_id])
+    |> validate_length(:name, min: 4)
     |> validate_inclusion(:play_type, ["public", "private"])
+    |> generate_slug
+    |> validate_required([:slug])
     |> unique_constraint(:slug)
   end
 
   defp generate_slug(changeset) do
     case get_field(changeset, :play_type) do
       "private" -> put_change(changeset, :slug, Ecto.UUID.generate() |> binary_part(24, 8))
-      _ -> put_change(changeset, :slug, Slug.slugify(get_field(changeset, :name)))
+      "public" -> put_change(changeset, :slug, Slug.slugify(get_field(changeset, :name)))
+      _ -> changeset
     end
   end
 end

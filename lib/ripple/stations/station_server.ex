@@ -22,6 +22,8 @@ defmodule Ripple.Stations.StationServer do
     GenServer.cast(String.to_atom("stations:#{slug}"), {:add_track, track_url, user})
   end
 
+  def get(slug), do: GenServer.call(String.to_atom("stations:#{slug}"), :get)
+
   # Server
   def init({%Station{} = station, nil}) do
     new_station = Map.put(station, :users, []) |> Map.put(:guests, 1)
@@ -35,9 +37,11 @@ defmodule Ripple.Stations.StationServer do
     {:ok, new_station}
   end
 
+  def handle_call(:get, _, state), do: {:reply, state, state}
+
   def handle_call({:remove_user, nil}, _, state) do
     new_state = Map.put(state, :guests, Map.get(state, :guests, 1) - 1)
-    user_count = Enum.count(new_state.users) + new_state.guests == 0
+    user_count = Enum.count(new_state.users) + new_state.guests
     emit_event(:station_user_left, %{station: new_state, target: "guest"})
 
     if user_count == 0 do
@@ -50,7 +54,7 @@ defmodule Ripple.Stations.StationServer do
   def handle_call({:remove_user, %User{} = user}, _, state) do
     users = Enum.filter(Map.get(state, :users, []), fn u -> u.id != user.id end)
     new_state = Map.put(state, :users, users)
-    user_count = Enum.count(new_state.users) + new_state.guests == 0
+    user_count = Enum.count(new_state.users) + Map.get(new_state, :guests, 0)
     emit_event(:station_user_left, %{station: new_state, target: user})
 
     if user_count == 0 do

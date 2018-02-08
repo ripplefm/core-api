@@ -1,4 +1,4 @@
-defimpl Poison.Encoder, for: Any do
+defimpl Poison.Encoder, for: Ecto.Schema do
   def encode(%{__struct__: _} = struct, options) do
     map =
       struct

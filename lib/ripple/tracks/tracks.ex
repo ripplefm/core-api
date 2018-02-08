@@ -55,6 +55,7 @@ defmodule Ripple.Tracks do
       case URI.parse(url) do
         %{host: "www.youtube.com"} -> YouTube.get_track(url)
         %{host: "soundcloud.com"} -> SoundCloud.get_track(url)
+        _ -> raise ArgumentError, message: "Invalid track provider url"
       end
 
     %Track{}
