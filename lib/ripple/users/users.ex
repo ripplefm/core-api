@@ -28,14 +28,14 @@ defmodule Ripple.Users do
 
   ## Examples
 
-      iex> get_user!(123)
+      iex> get_user!("tester")
       %User{}
 
-      iex> get_user!(456)
+      iex> get_user!("tester")
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(username), do: Repo.get_by!(User, username: username)
 
   @doc """
   Creates a user.

@@ -23,7 +23,8 @@ config :logger, :console,
 # Configures Canary for authorization
 config :canary,
   repo: Ripple.Repo,
-  unauthorized_handler: {RippleWeb.Helpers.AuthHelper, :unauthorized}
+  unauthorized_handler: {RippleWeb.Helpers.AuthHelper, :unauthorized},
+  not_found_handler: {RippleWeb.Helpers.AuthHelper, :not_found}
 
 # Configures event bus
 config :event_bus,

@@ -1,8 +1,20 @@
 defmodule RippleWeb.ErrorView do
   use RippleWeb, :view
 
-  def render("404.json", _assigns) do
+  def render("403.json", %{message: message}) do
+    %{errors: %{detail: message}}
+  end
+
+  def render("404.json", %{message: message}) do
+    %{errors: %{detail: message}}
+  end
+
+  def render("404.json", _) do
     %{errors: %{detail: "Page not found"}}
+  end
+
+  def render("422.json", %{message: message}) do
+    %{errors: %{detail: message}}
   end
 
   def render("500.json", _assigns) do

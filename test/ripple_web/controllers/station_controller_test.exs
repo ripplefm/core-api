@@ -46,9 +46,11 @@ defmodule RippleWeb.StationControllerTest do
         |> put_req_header("authorization", "Bearer #{token}")
         |> post(station_path(conn, :create), station: @create_attrs)
 
-      assert conn.status == 401
       assert ["Bearer #{token}"] == get_req_header(conn, "authorization")
-      assert conn.resp_body == "{\"error\":\"Invalid scopes for resource.\"}"
+
+      assert json_response(conn, 401) == %{
+               "errors" => %{"detail" => "Invalid scopes for resource."}
+             }
     end
 
     @tag :authenticated

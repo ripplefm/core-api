@@ -30,7 +30,21 @@ defmodule RippleWeb.Helpers.AuthHelper do
   def unauthorized(conn, reason) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(401, Poison.encode!(%{error: reason}))
+    |> Plug.Conn.send_resp(401, Poison.encode!(%{errors: %{detail: reason}}))
+    |> Plug.Conn.halt()
+  end
+
+  def not_found(conn) do
+    resource =
+      conn.path_info
+      |> Enum.at(0)
+      |> String.capitalize()
+
+    resource = String.slice(resource, 0, String.length(resource) - 1)
+
+    conn
+    |> Plug.Conn.put_resp_content_type("application/json")
+    |> Plug.Conn.send_resp(404, Poison.encode!(%{errors: %{detail: "#{resource} not found"}}))
     |> Plug.Conn.halt()
   end
 end

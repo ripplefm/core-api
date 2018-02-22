@@ -35,12 +35,14 @@ defmodule RippleWeb.ConnCase do
 
     conn =
       if tags[:authenticated] do
+        {:ok, user} = Ripple.Users.upsert_user(%{username: "tester"})
+
         token =
           %{
             scopes: ["user:email:read", "playlists:write", "stations:write"],
             user: %{
-              username: "tester",
-              id: Ecto.UUID.generate()
+              username: user.username,
+              id: user.id
             }
           }
           |> RippleWeb.Helpers.JWTHelper.sign()

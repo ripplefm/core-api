@@ -23,16 +23,21 @@ defmodule RippleWeb.AuthenticationPlugsTest do
         |> put_req_header("authorization", "invalid")
         |> post(station_path(conn, :create), station: @invalid_attrs)
 
-      assert conn.status == 401
       assert conn.assigns.current_user == nil
-      assert conn.resp_body == "{\"error\":\"Missing or invalid token in Authorization header.\"}"
+
+      assert json_response(conn, 401) == %{
+               "errors" => %{"detail" => "Missing or invalid token in Authorization header."}
+             }
     end
 
     test "missing header", %{conn: conn} do
       conn = post(conn, station_path(conn, :create), station: @invalid_attrs)
-      assert conn.status == 401
+
       assert conn.assigns.current_user == nil
-      assert conn.resp_body == "{\"error\":\"Missing or invalid token in Authorization header.\"}"
+
+      assert json_response(conn, 401) == %{
+               "errors" => %{"detail" => "Missing or invalid token in Authorization header."}
+             }
     end
   end
 end

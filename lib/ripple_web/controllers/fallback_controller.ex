@@ -17,4 +17,22 @@ defmodule RippleWeb.FallbackController do
     |> put_status(:not_found)
     |> render(RippleWeb.ErrorView, :"404")
   end
+
+  def call(conn, {:error, :not_playlist_creator}) do
+    conn
+    |> put_status(:forbidden)
+    |> render(RippleWeb.ErrorView, :"403", message: "Must be playlist creator")
+  end
+
+  def call(conn, {:error, :playlist_not_found}) do
+    conn
+    |> put_status(:not_found)
+    |> render(RippleWeb.ErrorView, :"404", message: "Playlist not found")
+  end
+
+  def call(conn, {:error, :track_not_in_playlist}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> render(RippleWeb.ErrorView, :"422", message: "Track not in playlist")
+  end
 end
