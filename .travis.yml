@@ -1,10 +1,10 @@
 language: elixir
 
-elixir: '1.6.1'
-otp_release: '20.0'
+elixir: "1.6.1"
+otp_release: "20.0"
 
 addons:
-  postgresql: '9.6'
+  postgresql: "9.6"
 
 services:
   - postgresql
@@ -15,3 +15,11 @@ env:
 before_script: mix do ecto.create, ecto.migrate
 
 script: ./ci/run.sh
+
+deploy:
+  provider: script
+  script: ./ci/deploy.sh
+  branches:
+    only:
+      - master
+      - /^[0-9][.][0-9][.][0-9].*/

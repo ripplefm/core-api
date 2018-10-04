@@ -1,5 +1,7 @@
 defmodule Ripple.Tracks.Providers.YouTube do
-  @key System.get_env("YOUTUBE_API_KEY")
+  def api_key do
+    System.get_env("YOUTUBE_API_KEY")
+  end
 
   def get_track(url) do
     url
@@ -23,7 +25,7 @@ defmodule Ripple.Tracks.Providers.YouTube do
     {:ok, res} =
       HTTPoison.get(
         "https://content.googleapis.com/youtube/v3/videos?id=#{id}&part=snippet,contentDetails&key=#{
-          @key
+          api_key()
         }"
       )
 

@@ -44,7 +44,8 @@ defmodule Ripple.Mixfile do
       {:httpoison, "~> 1.0"},
       {:slugify, "~> 1.1.0"},
       {:event_bus, "~> 1.0.0"},
-      {:cors_plug, "~> 1.2"}
+      {:cors_plug, "~> 1.2"},
+      {:distillery, "~> 2.0"}
     ]
   end
 

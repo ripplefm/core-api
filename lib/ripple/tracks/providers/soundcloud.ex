@@ -1,5 +1,7 @@
 defmodule Ripple.Tracks.Providers.SoundCloud do
-  @key System.get_env("SOUNDCLOUD_API_KEY")
+  def api_key do
+    System.get_env("SOUNDCLOUD_API_KEY")
+  end
 
   def get_track(url) do
     url
@@ -11,7 +13,7 @@ defmodule Ripple.Tracks.Providers.SoundCloud do
   defp make_request(url) do
     {:ok, res} =
       HTTPoison.get(
-        "https://api.soundcloud.com/resolve?url=#{url}&client_id=#{@key}",
+        "https://api.soundcloud.com/resolve?url=#{url}&client_id=#{api_key()}",
         [],
         follow_redirect: true
       )
