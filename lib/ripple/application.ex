@@ -7,7 +7,7 @@ defmodule Ripple.Application do
     import Supervisor.Spec
 
     # Define workers and child supervisors to be supervised
-    children = [
+    app_children = [
       # Start the Ecto repository
       supervisor(Ripple.Repo, []),
       # Start the endpoint when the application starts
@@ -19,6 +19,15 @@ defmodule Ripple.Application do
       # Start your own worker by calling: Ripple.Worker.start_link(arg1, arg2, arg3)
       # worker(Ripple.Worker, [arg1, arg2, arg3]),
     ]
+
+    children =
+      if Application.get_env(:libcluster, :enabled) do
+        topologies = Application.get_env(:libcluster, :topologies)
+
+        app_children ++ [{Cluster.Supervisor, [topologies, [name: RippleWeb.ClusterSupervisor]]}]
+      else
+        app_children
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

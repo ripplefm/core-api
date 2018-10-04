@@ -2,6 +2,7 @@ FROM bitwalker/alpine-elixir:1.7.3 AS builder
 
 WORKDIR /opt/app
 
+ARG REPLACE_OS_VARS=true
 ARG MIX_ENV=prod
 ARG RELEASE_VERSION=0.0.1
 
