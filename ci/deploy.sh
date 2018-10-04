@@ -1,7 +1,7 @@
 #! /bin/bash
 set -e
 
-docker login -u "$DOCKER_HUB_USERNME" -p "$DOCKER_HUB_PASSWORD"
+docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
 
 if [ -n "$TRAVIS_TAG" ]; then
   release_version=`cat mix.exs | grep "version: " | cut -d \" -f 2`
