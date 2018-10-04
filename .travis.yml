@@ -21,5 +21,6 @@ deploy:
   script: ./ci/deploy.sh
   on:
     branches:
-      - master
-      - /^[0-9][.][0-9][.][0-9].*/
+      only:
+        - master
+        - /^[0-9][.][0-9][.][0-9].*/
