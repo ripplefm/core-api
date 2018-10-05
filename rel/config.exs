@@ -37,6 +37,7 @@ environment :prod do
   set(include_erts: false)
   set(include_src: false)
   set(cookie: :"sjA]qOuyu(v2*:4{k<ix0bi3i|$p>OXs40<w4]oSWeC~.t_p/ot=*D,[^kD,9{t;")
+  set(vm_args: "rel/vm.args")
 
   set(
     config_providers: [

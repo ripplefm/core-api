@@ -16,11 +16,4 @@ before_script: mix do ecto.create, ecto.migrate
 
 script: ./ci/run.sh
 
-deploy:
-  provider: script
-  script: ./ci/deploy.sh
-  on:
-    branches:
-      only:
-        - master
-        - /^[0-9][.][0-9][.][0-9].*/
+after_success: ./ci/deploy.sh

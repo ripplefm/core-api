@@ -45,7 +45,8 @@ defmodule Ripple.Mixfile do
       {:slugify, "~> 1.1.0"},
       {:event_bus, "~> 1.0.0"},
       {:cors_plug, "~> 1.2"},
-      {:distillery, "~> 2.0"}
+      {:distillery, "~> 2.0"},
+      {:libcluster, "~> 3.0"}
     ]
   end
 

@@ -1,0 +1,2 @@
+-name <%= release_name %>@${MY_POD_IP}
+-setcookie <%= release.profile.cookie %>
