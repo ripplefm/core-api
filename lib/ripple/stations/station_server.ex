@@ -109,7 +109,8 @@ defmodule Ripple.Stations.StationServer do
         {:noreply, Map.put(state, :current_track, nil)}
 
       {:ok, [next | queue]} ->
-        Map.put(state, :queue, queue) |> Map.put(:current_track, next)
+        Map.put(state, :queue, queue)
+        |> Map.put(:current_track, next)
         |> start_track
 
       :error ->
