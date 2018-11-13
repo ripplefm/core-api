@@ -3,7 +3,7 @@ defmodule Ripple.StationStoreSyncTest do
 
   alias Ripple.Stations.StationStore
 
-  @opts [cluster_size: 3, boot_timeout: 10_000]
+  @opts [cluster_size: 3, boot_timeout: 20_000]
 
   defdelegate node_setup(context), to: Ripple.ClusterHelper
 
