@@ -1,8 +1,7 @@
 defmodule Ripple.StationSupervisorTest do
-  # use Ripple.ClusterCase, cluster_size: 3
   use ExUnit.ClusteredCase, async: false
 
-  @opts [cluster_size: 3, boot_timeout: 10_000]
+  @opts [cluster_size: 3, boot_timeout: 60_000]
 
   defdelegate node_setup(context), to: Ripple.ClusterHelper
 
