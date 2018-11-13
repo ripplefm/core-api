@@ -37,6 +37,8 @@ defmodule Ripple.Stations.StationServer do
 
   # Server
   def init({%Station{} = station, nil}) do
+    Process.flag(:trap_exit, true)
+
     new_station = Map.put(station, :users, []) |> Map.put(:guests, 1)
 
     emit_event(:station_started, %{station: new_station, target: new_station})
@@ -44,6 +46,8 @@ defmodule Ripple.Stations.StationServer do
   end
 
   def init({%Station{} = station, %User{} = user}) do
+    Process.flag(:trap_exit, true)
+
     new_station = Map.put(station, :users, [user]) |> Map.put(:queue, []) |> Map.put(:guests, 0)
 
     emit_event(:station_started, %{station: new_station, target: new_station})
@@ -129,6 +133,10 @@ defmodule Ripple.Stations.StationServer do
       :error ->
         {:noreply, state}
     end
+  end
+
+  def handle_info({:EXIT, _pid, reason}, state) do
+    {:stop, reason, state}
   end
 
   def via_tuple(slug) do

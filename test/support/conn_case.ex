@@ -33,6 +33,8 @@ defmodule RippleWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(Ripple.Repo, {:shared, self()})
     end
 
+    Ripple.ClusterHelper.cleanup()
+
     conn =
       if tags[:authenticated] do
         {:ok, user} = Ripple.Users.upsert_user(%{username: "tester"})

@@ -4,7 +4,7 @@ defmodule RippleWeb.StationChannel do
   alias Ripple.Stations
   alias Ripple.Stations.{StationStore, StationServer}
 
-  def join("stations:" <> slug, payload, socket) do
+  def join("stations:" <> slug, _payload, socket) do
     case StationStore.read(slug) do
       {:ok, nil} ->
         StationServer.start(Stations.get_station!(slug), socket.assigns.current_user)

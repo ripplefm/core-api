@@ -48,7 +48,8 @@ defmodule Ripple.Mixfile do
       {:distillery, "~> 2.0"},
       {:libcluster, "~> 3.0"},
       {:horde, "~> 0.2.2"},
-      {:lbm_kv, "~> 0.0.2"}
+      {:lbm_kv, "~> 0.0.2"},
+      {:ex_unit_clustered_case, "~> 0.3.2", only: [:test], runtime: false}
     ]
   end
 

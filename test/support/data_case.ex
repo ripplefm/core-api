@@ -32,6 +32,8 @@ defmodule Ripple.DataCase do
       Ecto.Adapters.SQL.Sandbox.mode(Ripple.Repo, {:shared, self()})
     end
 
+    Ripple.ClusterHelper.cleanup()
+
     :ok
   end
 
