@@ -2,14 +2,14 @@ defmodule RippleWeb.StationChannel do
   use RippleWeb, :channel
 
   alias Ripple.Stations
-  alias Ripple.Stations.{StationRegistry, StationServer}
+  alias Ripple.Stations.{StationStore, StationServer}
 
   def join("stations:" <> slug, payload, socket) do
-    case StationRegistry.get_by_slug(slug) do
-      nil ->
+    case StationStore.read(slug) do
+      {:ok, nil} ->
         StationServer.start(Stations.get_station!(slug), socket.assigns.current_user)
 
-      _ ->
+      {:ok, _} ->
         StationServer.add_user(slug, socket.assigns.current_user)
     end
 

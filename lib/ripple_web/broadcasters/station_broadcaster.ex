@@ -3,8 +3,7 @@
 defmodule RippleWeb.Broadcasters.StationBroadcaster do
   use GenServer
 
-  alias Ripple.Stations.StationRegistry
-  alias Ripple.Users.User
+  alias Ripple.Stations.StationStore
 
   def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: :station_echo)
@@ -20,7 +19,9 @@ defmodule RippleWeb.Broadcasters.StationBroadcaster do
     station = event.data.station
     slug = station.slug
     # broadcast this event to websockets
-    unless StationRegistry.get_by_slug(slug) == nil do
+    {:ok, stored_station} = StationStore.read(slug)
+
+    unless stored_station == nil do
       with {:ok, payload} <- broadcast_event(topic, event.data) do
         RippleWeb.Endpoint.broadcast("stations:#{slug}", Atom.to_string(topic), payload)
       end

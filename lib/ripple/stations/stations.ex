@@ -6,7 +6,7 @@ defmodule Ripple.Stations do
   import Ecto.Query, warn: false
   alias Ripple.Repo
 
-  alias Ripple.Stations.{Station, StationRegistry}
+  alias Ripple.Stations.{Station, StationStore}
 
   @doc """
   Returns the list of stations.
@@ -18,7 +18,7 @@ defmodule Ripple.Stations do
 
   """
   def list_stations do
-    StationRegistry.get_stations()
+    StationStore.list_stations()
   end
 
   @doc """
@@ -36,11 +36,10 @@ defmodule Ripple.Stations do
 
   """
   def get_station!(slug) do
-    local = StationRegistry.get_by_slug(slug)
-
-    case local do
-      nil -> Repo.get_by!(Station, slug: slug)
-      _ -> local
+    case StationStore.read(slug) do
+      {:ok, nil} -> Repo.get_by!(Station, slug: slug)
+      {:ok, station} -> station
+      _ -> Repo.get_by!(Station, slug: slug)
     end
   end
 

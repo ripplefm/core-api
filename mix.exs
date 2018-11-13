@@ -46,7 +46,9 @@ defmodule Ripple.Mixfile do
       {:event_bus, "~> 1.0.0"},
       {:cors_plug, "~> 1.2"},
       {:distillery, "~> 2.0"},
-      {:libcluster, "~> 3.0"}
+      {:libcluster, "~> 3.0"},
+      {:horde, "~> 0.2.2"},
+      {:lbm_kv, "~> 0.0.2"}
     ]
   end
 

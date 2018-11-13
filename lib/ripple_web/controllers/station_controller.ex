@@ -11,7 +11,7 @@ defmodule RippleWeb.StationController do
   plug(:authorize_resource, model: Station, only: :create)
 
   def index(conn, _params) do
-    stations = Stations.list_stations()
+    {:ok, stations} = Stations.list_stations()
     render(conn, "index.json", stations: stations)
   end
 
