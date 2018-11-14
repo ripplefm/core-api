@@ -29,6 +29,7 @@ defmodule Ripple.ClusterHelper do
   def cleanup() do
     Ripple.Repo.delete_all(Ripple.Stations.Station)
     Ripple.Repo.delete_all(Ripple.Users.User)
+    Ripple.Repo.delete_all(Ripple.Tracks.Track)
 
     stations = Horde.Supervisor.which_children(Ripple.StationSupervisor)
 
@@ -36,6 +37,9 @@ defmodule Ripple.ClusterHelper do
     |> Enum.map(&List.first/1)
     |> Enum.map(&elem(&1, 0))
     |> Enum.each(&Horde.Supervisor.terminate_child(Ripple.StationSupervisor, &1))
+
+    :mnesia.clear_table(Ripple.Stations.StationStore)
+    :mnesia.clear_table(Ripple.Stations.StationHandoffStore)
   end
 
   def heal(cluster) do

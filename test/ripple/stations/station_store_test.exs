@@ -8,7 +8,7 @@ defmodule Ripple.StationStoreTest do
     tags: []
   }
 
-  describe "station store" do
+  describe "StationStore" do
     def station_fixture(username, station_name) do
       {:ok, user} = Ripple.Users.create_user(%{username: username})
 
@@ -43,9 +43,8 @@ defmodule Ripple.StationStoreTest do
       station_fixture("tester", "Test Station")
     end
 
-    test "Ensure store started" do
-      tables = :mnesia.system_info(:tables)
-      assert StationStore in tables == true
+    test "Ensure station store started" do
+      assert StationStore in :mnesia.system_info(:tables)
     end
 
     test "list_stations/0 returns empty list when no stations are live", %{

@@ -6,9 +6,9 @@
 Node.start(:"primary@127.0.0.1", :longnames)
 :mnesia.start()
 Ripple.Stations.StationStore.init_store()
+Ripple.Stations.StationHandoffStore.init_store()
 
 Application.ensure_all_started(:ex_unit_clustered_case)
 
 ExUnit.start()
-# Ecto.Adapters.SQL.Sandbox.mode(Ripple.Repo, :manual)
 Ecto.Adapters.SQL.Sandbox.mode(Ripple.Repo, {:shared, self()})
