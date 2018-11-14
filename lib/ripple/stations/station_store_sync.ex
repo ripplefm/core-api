@@ -1,7 +1,7 @@
 defmodule Ripple.Stations.StationStoreSync do
   use GenServer
 
-  alias Ripple.Stations.{StationStore, StationServer}
+  alias Ripple.Stations.{StationStore, StationHandoffStore, StationServer}
 
   @sync_delay 4_000
 
@@ -23,6 +23,7 @@ defmodule Ripple.Stations.StationStoreSync do
     Process.send_after(self(), :sync_store, @sync_delay)
 
     StationStore.init_store()
+    StationHandoffStore.init_store()
 
     {:ok, state}
   end

@@ -3,7 +3,7 @@ defmodule Ripple.Stations.StationServer do
 
   alias Ripple.Tracks
   alias Ripple.Tracks.Track
-  alias Ripple.Stations.{Station, LiveStation}
+  alias Ripple.Stations.{Station, StationHandoffStore, LiveStation}
   alias Ripple.Users.User
 
   # Client
@@ -39,7 +39,7 @@ defmodule Ripple.Stations.StationServer do
   def init({%Station{} = station, nil}) do
     Process.flag(:trap_exit, true)
 
-    new_station = get_base_state(station, nil)
+    new_station = get_base_state(station, nil) |> do_init()
 
     emit_event(:station_started, %{station: new_station, target: new_station})
     {:ok, new_station}
@@ -48,7 +48,7 @@ defmodule Ripple.Stations.StationServer do
   def init({%Station{} = station, %User{} = user}) do
     Process.flag(:trap_exit, true)
 
-    new_station = get_base_state(station, user)
+    new_station = get_base_state(station, user) |> do_init()
 
     emit_event(:station_started, %{station: new_station, target: new_station})
     {:ok, new_station}
@@ -174,6 +174,11 @@ defmodule Ripple.Stations.StationServer do
     {:noreply, state}
   end
 
+  def terminate(_reason, %LiveStation{} = state) do
+    StationHandoffStore.put(state)
+    :ok
+  end
+
   def via_tuple(slug) do
     {:via, Horde.Registry, {Ripple.StationRegistry, "stations:#{slug}"}}
   end
@@ -210,6 +215,25 @@ defmodule Ripple.Stations.StationServer do
       current_track: nil,
       queue: []
     }
+  end
+
+  defp do_init(%LiveStation{slug: slug} = base_state) do
+    case StationHandoffStore.get_and_delete(slug) do
+      {:ok, saved_station} -> init_from_saved_state(saved_station)
+      {:error, :no_exists} -> base_state
+    end
+  end
+
+  defp init_from_saved_state(%LiveStation{current_track: nil} = station) do
+    Process.send_after(self(), :stop_if_empty, 5_000)
+    %LiveStation{station | users: [], guests: 0}
+  end
+
+  defp init_from_saved_state(%LiveStation{current_track: current_track} = station) do
+    Process.send_after(self(), :stop_if_empty, 5_000)
+    diff = current_track.timestamp - :os.system_time(:millisecond) + current_track.duration
+    Process.send_after(self(), :track_finished, diff)
+    %LiveStation{station | users: [], guests: 0}
   end
 
   defp add_track_to_queue(%LiveStation{queue: queue} = station, %Track{} = track) do
