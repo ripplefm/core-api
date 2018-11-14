@@ -2,7 +2,8 @@ defmodule Ripple.Stations.StationServer do
   use GenServer
 
   alias Ripple.Tracks
-  alias Ripple.Stations.Station
+  alias Ripple.Tracks.Track
+  alias Ripple.Stations.{Station, LiveStation}
   alias Ripple.Users.User
 
   # Client
@@ -35,11 +36,10 @@ defmodule Ripple.Stations.StationServer do
 
   def get(slug), do: GenServer.call(via_tuple(slug), :get)
 
-  # Server
   def init({%Station{} = station, nil}) do
     Process.flag(:trap_exit, true)
 
-    new_station = Map.put(station, :users, []) |> Map.put(:guests, 1)
+    new_station = get_base_state(station, nil)
 
     emit_event(:station_started, %{station: new_station, target: new_station})
     {:ok, new_station}
@@ -48,7 +48,7 @@ defmodule Ripple.Stations.StationServer do
   def init({%Station{} = station, %User{} = user}) do
     Process.flag(:trap_exit, true)
 
-    new_station = Map.put(station, :users, [user]) |> Map.put(:queue, []) |> Map.put(:guests, 0)
+    new_station = get_base_state(station, user)
 
     emit_event(:station_started, %{station: new_station, target: new_station})
     {:ok, new_station}
@@ -56,109 +56,174 @@ defmodule Ripple.Stations.StationServer do
 
   def handle_call(:get, _, state), do: {:reply, state, state}
 
-  def handle_call({:remove_user, nil}, _, state) do
-    new_state = Map.put(state, :guests, Map.get(state, :guests, 1) - 1)
-    user_count = Enum.count(new_state.users) + new_state.guests
+  def handle_call({:remove_user, nil}, _, %LiveStation{guests: 1, users: []} = state) do
+    new_state = %LiveStation{state | guests: 0}
     emit_event(:station_user_left, %{station: new_state, target: "guest"})
-
-    if user_count == 0 do
-      GenServer.cast(self(), :stop)
-    end
-
-    {:reply, user_count == 0, new_state}
+    GenServer.cast(self(), :stop)
+    {:reply, true, new_state}
   end
 
-  def handle_call({:remove_user, %User{} = user}, _, state) do
-    users = Enum.filter(Map.get(state, :users, []), fn u -> u.id != user.id end)
-    new_state = Map.put(state, :users, users)
-    user_count = Enum.count(new_state.users) + Map.get(new_state, :guests, 0)
+  def handle_call({:remove_user, nil}, _, %LiveStation{guests: guests} = state) do
+    new_state = %LiveStation{state | guests: guests - 1}
+    emit_event(:station_user_left, %{station: new_state, target: "guest"})
+    {:reply, false, new_state}
+  end
+
+  def handle_call(
+        {:remove_user, %User{} = user},
+        _,
+        %LiveStation{users: [user], guests: 0} = state
+      ) do
+    new_state = %LiveStation{state | users: []}
     emit_event(:station_user_left, %{station: new_state, target: user})
-
-    if user_count == 0 do
-      GenServer.cast(self(), :stop)
-    end
-
-    {:reply, user_count == 0, new_state}
+    GenServer.cast(self(), :stop)
+    {:reply, true, new_state}
   end
 
-  def handle_call({:add_user, nil}, _, state) do
-    new_state = Map.put(state, :guests, Map.get(state, :guests, 0) + 1)
+  def handle_call({:remove_user, %User{} = user}, _, %LiveStation{users: users} = state) do
+    new_state = %LiveStation{state | users: List.delete(users, user)}
+    emit_event(:station_user_left, %{station: new_state, target: user})
+    {:reply, false, new_state}
+  end
+
+  def handle_call({:add_user, nil}, _, %LiveStation{guests: guests} = state) do
+    new_state = %LiveStation{state | guests: guests + 1}
     emit_event(:station_user_joined, %{station: new_state, target: "guest"})
     {:reply, :ok, new_state}
   end
 
-  def handle_call({:add_user, %User{} = user}, _, state) do
-    users = Enum.filter(Map.get(state, :users, []), fn u -> u.id != user.id end)
-    new_state = Map.put(state, :users, users ++ [user])
-
+  def handle_call({:add_user, %User{} = user}, _, %LiveStation{users: users} = state) do
+    filtered_users = Enum.filter(users, fn u -> u.id != user.id end)
+    new_state = %LiveStation{state | users: filtered_users ++ [user]}
     emit_event(:station_user_joined, %{station: new_state, target: user})
     {:reply, :ok, new_state}
   end
 
-  def handle_cast(:stop, state) do
+  def handle_cast(
+        {:add_track, track_url, %User{} = user},
+        %LiveStation{play_type: "private", current_track: nil} = state
+      ) do
+    if user.id == state.creator_id do
+      track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
+      %LiveStation{state | current_track: track} |> start_track
+    else
+      {:reply, {:error, :not_creator}, state}
+    end
+  end
+
+  def handle_cast(
+        {:add_track, track_url, %User{} = user},
+        %LiveStation{play_type: "private"} = state
+      ) do
+    if user.id == state.creator_id do
+      track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
+      add_track_to_queue(state, track)
+    else
+      {:reply, {:error, :not_creator}, state}
+    end
+  end
+
+  def handle_cast(
+        {:add_track, track_url, %User{} = user},
+        %LiveStation{current_track: nil, users: users} = state
+      ) do
+    if user in users do
+      track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
+      %LiveStation{state | current_track: track} |> start_track
+    else
+      {:reply, {:error, :not_in_station}, state}
+    end
+  end
+
+  def handle_cast({:add_track, track_url, %User{} = user}, %LiveStation{users: users} = state) do
+    if user in users do
+      track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
+      add_track_to_queue(state, track)
+    else
+      {:reply, {:error, :not_in_station}, state}
+    end
+  end
+
+  def handle_cast(:stop, %LiveStation{slug: slug} = state) do
     emit_event(:station_stopped, %{station: state, target: state})
-    Horde.Supervisor.terminate_child(Ripple.StationSupervisor, "stations:#{state.slug}")
+    Horde.Supervisor.terminate_child(Ripple.StationSupervisor, "stations:#{slug}")
   end
 
-  def handle_cast({:add_track, track_url, %User{} = user}, state) do
-    track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
-
-    case Map.fetch(state, :current_track) do
-      {:ok, nil} ->
-        Map.put(state, :current_track, track) |> start_track
-
-      {:ok, _} ->
-        add_track_to_queue(state, track)
-
-      :error ->
-        Map.put(state, :current_track, track) |> start_track
-    end
+  def handle_info(:track_finished, %LiveStation{queue: []} = state) do
+    new_state = %LiveStation{state | current_track: nil}
+    emit_event(:station_track_finished, %{station: new_state, target: new_state})
+    {:noreply, new_state}
   end
 
-  def handle_info(:track_finished, state) do
-    emit_event(:station_track_finished, %{
-      station: Map.put(state, :current_track, nil),
-      target: state
-    })
-
-    case Map.fetch(state, :queue) do
-      {:ok, []} ->
-        {:noreply, Map.put(state, :current_track, nil)}
-
-      {:ok, [next | queue]} ->
-        Map.put(state, :queue, queue)
-        |> Map.put(:current_track, next)
-        |> start_track
-
-      :error ->
-        {:noreply, state}
-    end
+  def handle_info(:track_finished, %LiveStation{queue: [next | queue]} = state) do
+    new_state = %LiveStation{state | current_track: next, queue: queue}
+    emit_event(:station_track_finished, %{station: new_state, target: new_state})
+    new_state |> start_track
   end
 
-  def handle_info({:EXIT, _pid, reason}, state) do
+  def handle_info({:EXIT, _pid, reason}, %LiveStation{} = state) do
     {:stop, reason, state}
+  end
+
+  def handle_info({:stop_if_empty, %LiveStation{users: [], guests: 0} = state}) do
+    GenServer.cast(self(), :stop)
+    {:noreply, state}
+  end
+
+  def handle_info({:stop_if_empty, %LiveStation{} = state}) do
+    {:noreply, state}
   end
 
   def via_tuple(slug) do
     {:via, Horde.Registry, {Ripple.StationRegistry, "stations:#{slug}"}}
   end
 
-  defp add_track_to_queue(state, track) do
-    new_state = Map.put(state, :queue, Map.get(state, :queue, []) ++ [track])
+  defp get_base_state(%Station{} = station, nil) do
+    creator = Map.get(station, :creator, nil)
+    creator_id = if creator == nil, do: station.creator_id, else: creator.id
+
+    %LiveStation{
+      id: station.id,
+      name: station.name,
+      play_type: station.play_type,
+      slug: station.slug,
+      creator_id: creator_id,
+      guests: 1,
+      users: [],
+      current_track: nil,
+      queue: []
+    }
+  end
+
+  defp get_base_state(%Station{} = station, %User{} = user) do
+    creator = Map.get(station, :creator, nil)
+    creator_id = if creator == nil, do: station.creator_id, else: creator.id
+
+    %LiveStation{
+      id: station.id,
+      name: station.name,
+      play_type: station.play_type,
+      slug: station.slug,
+      creator_id: creator_id,
+      guests: 0,
+      users: [user],
+      current_track: nil,
+      queue: []
+    }
+  end
+
+  defp add_track_to_queue(%LiveStation{queue: queue} = station, %Track{} = track) do
+    new_state = %LiveStation{station | queue: queue ++ [track]}
     emit_event(:station_queue_track_added, %{station: new_state, target: track})
     {:noreply, new_state}
   end
 
-  defp start_track(state) do
-    new_state =
-      Map.put(
-        state,
-        :current_track,
-        Map.put(state.current_track, :timestamp, :os.system_time(:millisecond))
-      )
+  defp start_track(%LiveStation{current_track: track} = state) do
+    timestamped_track = Map.put(track, :timestamp, :os.system_time(:millisecond))
+    new_state = %LiveStation{state | current_track: timestamped_track}
+    emit_event(:station_track_started, %{station: new_state, target: timestamped_track})
 
-    emit_event(:station_track_started, %{station: new_state, target: new_state.current_track})
-    Process.send_after(self(), :track_finished, new_state.current_track.duration)
+    Process.send_after(self(), :track_finished, timestamped_track.duration)
 
     {:noreply, new_state}
   end
