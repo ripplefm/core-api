@@ -3,6 +3,7 @@ defmodule RippleWeb.StationChannel do
 
   alias Ripple.Stations
   alias Ripple.Stations.{StationStore, StationServer}
+  alias RippleWeb.Helpers.ChatHelper
 
   def join("stations:" <> slug, _payload, socket) do
     case StationStore.read(slug) do
@@ -36,13 +37,17 @@ defmodule RippleWeb.StationChannel do
 
   def handle_in("chat", %{"text" => text}, socket) do
     unless socket.assigns.current_user == nil do
-      broadcast(socket, "station_chat", %{sender: socket.assigns.current_user, text: text})
+      broadcast(socket, "station_chat", %{
+        sender: socket.assigns.current_user,
+        message: ChatHelper.process(text)
+      })
     end
 
     {:noreply, socket}
   end
 
   defp get_slug(socket) do
-    socket.topic |> String.slice(String.length("stations:"), String.length(socket.topic))
+    ["stations", slug] = String.split(socket.topic, ":")
+    slug
   end
 end
