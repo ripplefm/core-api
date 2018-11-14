@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2018-11-14
+
+### Added
+
+- Chat messages are now processed and sent back as an array of message types. For example, the message `@daniel check out this link: https://ripple.fm` will be processed as:
+  ```
+  [
+    %{ type: "mention", value: "@daniel" },
+    %{ type: "text", value: "check out this link:" },
+    %{ type: "link", value: "https://ripple.fm" }
+  ]
+  ```
+
 ## [0.0.3] - 2018-11-14
 
 ### Added
