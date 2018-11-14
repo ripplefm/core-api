@@ -28,7 +28,7 @@ defmodule Ripple.StationsTest do
 
     test "list_stations/0 returns empty array when no station are live" do
       station_fixture()
-      assert Stations.list_stations() == []
+      assert Stations.list_stations() == {:ok, []}
     end
 
     test "get_station!/1 returns the station with given slug when no stations are live" do

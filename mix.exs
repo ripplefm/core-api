@@ -4,8 +4,8 @@ defmodule Ripple.Mixfile do
   def project do
     [
       app: :ripple,
-      version: "0.0.1",
-      elixir: "~> 1.4",
+      version: "0.0.2",
+      elixir: "~> 1.7.3",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -46,7 +46,10 @@ defmodule Ripple.Mixfile do
       {:event_bus, "~> 1.0.0"},
       {:cors_plug, "~> 1.2"},
       {:distillery, "~> 2.0"},
-      {:libcluster, "~> 3.0"}
+      {:libcluster, "~> 3.0"},
+      {:horde, "~> 0.2.2"},
+      {:lbm_kv, "~> 0.0.2"},
+      {:ex_unit_clustered_case, "~> 0.3.2", only: [:test], runtime: false}
     ]
   end
 

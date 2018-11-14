@@ -6,33 +6,50 @@ defmodule Ripple.Stations.StationServer do
   alias Ripple.Users.User
 
   # Client
+  def child_spec(%{station: station, user: user}) do
+    %{
+      id: "stations:#{station.slug}",
+      start:
+        {GenServer, :start_link, [__MODULE__, {station, user}, [name: via_tuple(station.slug)]]}
+    }
+  end
+
   def start(station, user) do
-    GenServer.start(__MODULE__, {station, user}, name: String.to_atom("stations:#{station.slug}"))
+    Horde.Supervisor.start_child(
+      Ripple.StationSupervisor,
+      child_spec(%{station: station, user: user})
+    )
   end
 
   def add_user(slug, user) do
-    GenServer.call(String.to_atom("stations:#{slug}"), {:add_user, user})
+    GenServer.call(via_tuple(slug), {:add_user, user})
   end
 
   def remove_user(slug, user) do
-    GenServer.call(String.to_atom("stations:#{slug}"), {:remove_user, user})
+    GenServer.call(via_tuple(slug), {:remove_user, user})
   end
 
   def add_track(slug, track_url, user) do
-    GenServer.cast(String.to_atom("stations:#{slug}"), {:add_track, track_url, user})
+    GenServer.cast(via_tuple(slug), {:add_track, track_url, user})
   end
 
-  def get(slug), do: GenServer.call(String.to_atom("stations:#{slug}"), :get)
+  def get(slug), do: GenServer.call(via_tuple(slug), :get)
 
   # Server
   def init({%Station{} = station, nil}) do
+    Process.flag(:trap_exit, true)
+
     new_station = Map.put(station, :users, []) |> Map.put(:guests, 1)
+
     emit_event(:station_started, %{station: new_station, target: new_station})
     {:ok, new_station}
   end
 
   def init({%Station{} = station, %User{} = user}) do
-    new_station = Map.put(station, :users, [user]) |> Map.put(:queue, [])
+    Process.flag(:trap_exit, true)
+
+    new_station = Map.put(station, :users, [user]) |> Map.put(:queue, []) |> Map.put(:guests, 0)
+
     emit_event(:station_started, %{station: new_station, target: new_station})
     {:ok, new_station}
   end
@@ -80,7 +97,7 @@ defmodule Ripple.Stations.StationServer do
 
   def handle_cast(:stop, state) do
     emit_event(:station_stopped, %{station: state, target: state})
-    {:stop, :shutdown, state}
+    Horde.Supervisor.terminate_child(Ripple.StationSupervisor, "stations:#{state.slug}")
   end
 
   def handle_cast({:add_track, track_url, %User{} = user}, state) do
@@ -109,12 +126,21 @@ defmodule Ripple.Stations.StationServer do
         {:noreply, Map.put(state, :current_track, nil)}
 
       {:ok, [next | queue]} ->
-        Map.put(state, :queue, queue) |> Map.put(:current_track, next)
+        Map.put(state, :queue, queue)
+        |> Map.put(:current_track, next)
         |> start_track
 
       :error ->
         {:noreply, state}
     end
+  end
+
+  def handle_info({:EXIT, _pid, reason}, state) do
+    {:stop, reason, state}
+  end
+
+  def via_tuple(slug) do
+    {:via, Horde.Registry, {Ripple.StationRegistry, "stations:#{slug}"}}
   end
 
   defp add_track_to_queue(state, track) do

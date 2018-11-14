@@ -2,8 +2,7 @@ defmodule Ripple.Playlists.PlaylistTrack do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Ripple.Playlists.{PlaylistTrack, Playlist}
-  alias Ripple.Tracks.Track
+  alias Ripple.Playlists.PlaylistTrack
 
   @primary_key false
   schema "playlist_tracks" do

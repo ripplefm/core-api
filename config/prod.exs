@@ -73,6 +73,7 @@ config :libcluster,
         kubernetes_selector: "app=ripple-core-api",
         kubernetes_node_basename: "ripple",
         polling_interval: 5_000
-      ]
+      ],
+      connect: {Ripple.ClusterConnector, :connect, []}
     ]
   ]
