@@ -1,7 +1,10 @@
 defmodule Ripple.StationSupervisorTest do
   use ExUnit.ClusteredCase, async: false
 
+  alias Ripple.Stations.{StationServer, LiveStation}
+
   @opts [cluster_size: 3, boot_timeout: 60_000]
+  @track_url "https://www.youtube.com/watch?v=4Rc-NGWEHdU"
 
   defdelegate node_setup(context), to: Ripple.ClusterHelper
 
@@ -49,7 +52,7 @@ defmodule Ripple.StationSupervisorTest do
           %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
         ])
 
-      {:ok, pid} = Cluster.call(node, Ripple.Stations.StationServer, :start, [station, user])
+      {:ok, pid} = Cluster.call(node, StationServer, :start, [station, user])
 
       Process.sleep(2_000)
 
@@ -74,11 +77,11 @@ defmodule Ripple.StationSupervisorTest do
           %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
         ])
 
-      Cluster.call(node, Ripple.Stations.StationServer, :start, [station, user])
+      Cluster.call(node, StationServer, :start, [station, user])
 
       Process.sleep(1_000)
 
-      Cluster.call(node, Ripple.Stations.StationServer, :remove_user, [station.slug, user])
+      Cluster.call(node, StationServer, :remove_user, [station.slug, user])
 
       Process.sleep(1_000)
 
@@ -103,8 +106,7 @@ defmodule Ripple.StationSupervisorTest do
           %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
         ])
 
-      {:ok, first_pid} =
-        Cluster.call(node, Ripple.Stations.StationServer, :start, [station, user])
+      {:ok, first_pid} = Cluster.call(node, StationServer, :start, [station, user])
 
       Cluster.call(node, Process, :exit, [first_pid, :normal])
 
@@ -117,6 +119,38 @@ defmodule Ripple.StationSupervisorTest do
         ])
 
       assert second_pid != first_pid
+    end
+
+    test "Station server retains state when killed/crashed", %{cluster: c} do
+      node = Cluster.random_member(c)
+
+      {:ok, user} =
+        Cluster.call(node, Ripple.Users, :upsert_user, [%{username: "cluster_tester"}])
+
+      {:ok, station} =
+        Cluster.call(node, Ripple.Stations, :create_station, [
+          %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
+        ])
+
+      {:ok, first_pid} = Cluster.call(node, StationServer, :start, [station, user])
+
+      Process.sleep(1_000)
+
+      Cluster.call(node, StationServer, :add_track, [
+        station.slug,
+        @track_url,
+        user
+      ])
+
+      assert running_station = Cluster.call(node, StationServer, :get, [station.slug])
+
+      Cluster.call(node, Process, :exit, [first_pid, :normal])
+
+      Process.sleep(1_000)
+
+      assert restarted_station = Cluster.call(node, StationServer, :get, [station.slug])
+
+      assert %LiveStation{running_station | users: []} == restarted_station
     end
   end
 end
