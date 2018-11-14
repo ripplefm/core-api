@@ -1,6 +1,6 @@
 defmodule RippleWeb.StationView do
   use RippleWeb, :view
-  alias RippleWeb.{StationView, TrackView}
+  alias RippleWeb.{UserView, StationView, TrackView}
 
   def render("index.json", %{stations: stations}) do
     %{stations: render_many(stations, StationView, "station_short.json")}
@@ -19,7 +19,7 @@ defmodule RippleWeb.StationView do
         render_one(Map.get(station, :current_track, nil), TrackView, "current_track.json"),
       queue: Enum.count(Map.get(station, :queue, [])),
       tags: station.tags,
-      users: Enum.count(station.users),
+      users: render_many(Map.get(station, :users, []), UserView, "user.json"),
       guests: Map.get(station, :guests, 0),
       total_listeners: Enum.count(station.users) + Map.get(station, :guests, 0),
       slug: station.slug
@@ -36,7 +36,7 @@ defmodule RippleWeb.StationView do
       current_track:
         render_one(Map.get(station, :current_track, nil), TrackView, "current_track.json"),
       queue: render_many(Map.get(station, :queue, []), TrackView, "track_hidden.json"),
-      users: Map.get(station, :users, []),
+      users: render_many(Map.get(station, :users, []), UserView, "user.json"),
       guests: Map.get(station, :guests, 0)
     }
   end
