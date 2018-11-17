@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2018-11-16
+
+### Changed
+
+- libcluster `:enabled` app setting now moved to `CLUSTER_ENABLED` environment variable to allow running production docekr image without a cluster.
+
+### Removed
+
+- No longer proxying requests to auth service for `/users/me`
+
 ## [0.1.0] - 2018-11-14
 
 ### Added
