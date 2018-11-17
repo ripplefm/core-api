@@ -64,7 +64,6 @@ config :ripple, Ripple.Repo,
   pool_size: 20
 
 config :libcluster,
-  enabled: true,
   topologies: [
     k8s: [
       strategy: Cluster.Strategy.Kubernetes,

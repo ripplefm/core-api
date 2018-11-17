@@ -24,7 +24,7 @@ defmodule Ripple.Application do
     ]
 
     children =
-      if Application.get_env(:libcluster, :enabled) do
+      if System.get_env("CLUSTER_ENABLED") == "true" do
         topologies = Application.get_env(:libcluster, :topologies)
 
         app_children ++
