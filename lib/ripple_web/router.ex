@@ -21,7 +21,5 @@ defmodule RippleWeb.Router do
     post("/playlists/:slug", PlaylistController, :add, param: "slug")
     delete("/playlists/:slug", PlaylistController, :remove, param: "slug")
     resources("/playlists", PlaylistController, only: [:create, :show], param: "slug")
-
-    get("/users/me", UserController, :me)
   end
 end
