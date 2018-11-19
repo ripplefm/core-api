@@ -44,7 +44,7 @@ defmodule RippleWeb.Endpoint do
     signing_salt: "GdnVrgpi"
   )
 
-  plug(CORSPlug)
+  plug(CORSPlug, origin: "*")
 
   plug(RippleWeb.Router)
 
