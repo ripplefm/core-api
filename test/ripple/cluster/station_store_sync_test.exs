@@ -68,7 +68,7 @@ defmodule Ripple.StationStoreSyncTest do
 
       {:ok, station} =
         Cluster.call(node, Ripple.Stations, :create_station, [
-          %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
+          %{creator_id: user.id, name: "Test Station", visibility: "public", tags: []}
         ])
 
       {:ok, _pid} = Cluster.call(node, Ripple.Stations.StationServer, :start, [station, user])

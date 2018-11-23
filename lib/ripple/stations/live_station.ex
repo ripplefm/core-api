@@ -3,7 +3,7 @@ defmodule Ripple.Stations.LiveStation do
 
   defstruct id: "",
             name: "",
-            play_type: "",
+            visibility: "",
             slug: "",
             tags: [],
             creator_id: "",

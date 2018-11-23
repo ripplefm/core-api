@@ -4,7 +4,7 @@ defmodule Ripple.StationHandoffStoreTest do
   alias Ripple.Stations.{StationHandoffStore, LiveStation}
 
   @valid_attrs %{
-    play_type: "public",
+    visibility: "public",
     tags: []
   }
 
@@ -22,7 +22,7 @@ defmodule Ripple.StationHandoffStoreTest do
       live_station = %LiveStation{
         id: station.id,
         name: station.name,
-        play_type: station.play_type,
+        visibility: station.visibility,
         slug: station.slug,
         guests: 0,
         users: [user],

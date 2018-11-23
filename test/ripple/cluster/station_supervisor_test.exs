@@ -49,7 +49,7 @@ defmodule Ripple.StationSupervisorTest do
 
       {:ok, station} =
         Cluster.call(node, Ripple.Stations, :create_station, [
-          %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
+          %{creator_id: user.id, name: "Test Station", visibility: "public", tags: []}
         ])
 
       {:ok, pid} = Cluster.call(node, StationServer, :start, [station, user])
@@ -74,7 +74,7 @@ defmodule Ripple.StationSupervisorTest do
 
       {:ok, station} =
         Cluster.call(node, Ripple.Stations, :create_station, [
-          %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
+          %{creator_id: user.id, name: "Test Station", visibility: "public", tags: []}
         ])
 
       Cluster.call(node, StationServer, :start, [station, user])
@@ -103,7 +103,7 @@ defmodule Ripple.StationSupervisorTest do
 
       {:ok, station} =
         Cluster.call(node, Ripple.Stations, :create_station, [
-          %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
+          %{creator_id: user.id, name: "Test Station", visibility: "public", tags: []}
         ])
 
       {:ok, first_pid} = Cluster.call(node, StationServer, :start, [station, user])
@@ -129,7 +129,7 @@ defmodule Ripple.StationSupervisorTest do
 
       {:ok, station} =
         Cluster.call(node, Ripple.Stations, :create_station, [
-          %{creator_id: user.id, name: "Test Station", play_type: "public", tags: []}
+          %{creator_id: user.id, name: "Test Station", visibility: "public", tags: []}
         ])
 
       {:ok, first_pid} = Cluster.call(node, StationServer, :start, [station, user])
