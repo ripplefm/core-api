@@ -1,6 +1,8 @@
 defmodule RippleWeb.TrackView do
   use RippleWeb, :view
 
+  alias RippleWeb.UserView
+
   def render("track.json", %{track: track}) do
     %{
       artwork_url: track.artwork_url,
@@ -19,7 +21,7 @@ defmodule RippleWeb.TrackView do
       artwork_url: track.artwork_url,
       duration: track.duration,
       timestamp: track.timestamp,
-      dj: track.dj,
+      dj: render_one(track.dj, UserView, "user.json"),
       url: track.url,
       poster: track.poster,
       name: track.name,
@@ -30,8 +32,10 @@ defmodule RippleWeb.TrackView do
 
   def render("track_hidden.json", %{track: track}) do
     %{
-      username: track.dj.username,
-      id: track.dj.id
+      dj: %{
+        username: track.dj.username,
+        id: track.dj.id
+      }
     }
   end
 end
