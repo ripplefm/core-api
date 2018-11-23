@@ -5,6 +5,7 @@ defmodule Ripple.Users.User do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+  @derive {Poison.Encoder, only: [:id, :username]}
   schema "users" do
     field(:username, :string)
   end
