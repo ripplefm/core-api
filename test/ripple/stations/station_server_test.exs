@@ -13,14 +13,14 @@ defmodule Ripple.StationServerTest do
         Ripple.Stations.create_station(%{
           creator_id: user.id,
           tags: [],
-          play_type: "public",
+          visibility: "public",
           name: "Test Station"
         })
 
       state = %LiveStation{
         id: station.id,
         name: station.name,
-        play_type: station.play_type,
+        visibility: station.visibility,
         slug: station.slug,
         guests: 0,
         users: [user],
@@ -135,32 +135,6 @@ defmodule Ripple.StationServerTest do
                StationServer.handle_call({:remove_user, user}, self(), state)
 
       assert StationStore.read(state.slug) == {:ok, nil}
-    end
-
-    test "station with private play_type does not allow random user to play tracks", %{
-      state: state,
-      user: user
-    } do
-      {:ok, new_user} = Ripple.Users.create_user(%{username: "tester2"})
-      initial_state = %LiveStation{state | play_type: "private", users: [user, new_user]}
-
-      assert {:reply, {:error, :not_creator}, returned_state} =
-               StationServer.handle_cast({:add_track, @track_url, new_user}, initial_state)
-
-      assert returned_state == initial_state
-    end
-
-    test "station with private play_type allows creator to play tracks", %{
-      state: state,
-      user: user
-    } do
-      initial_state = %LiveStation{state | play_type: "private"}
-
-      assert {:noreply, returned_state} =
-               StationServer.handle_cast({:add_track, @track_url, user}, initial_state)
-
-      assert returned_state.current_track.url == @track_url
-      assert %LiveStation{returned_state | current_track: nil} == initial_state
     end
 
     test "adding a track fails if user not in station", %{state: state, user: user} do

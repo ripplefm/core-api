@@ -8,11 +8,11 @@ defmodule Ripple.StationsTest do
 
     @valid_attrs %{
       name: "some name",
-      play_type: "public",
+      visibility: "public",
       tags: []
     }
-    @valid_attrs_with_slug %{name: "with slug", slug: "test-room", play_type: "public", tags: []}
-    @invalid_attrs %{name: nil, play_type: nil, tags: nil}
+    @valid_attrs_with_slug %{name: "with slug", slug: "test-room", visibility: "public", tags: []}
+    @invalid_attrs %{name: nil, visibility: nil, tags: nil}
 
     def station_fixture(attrs \\ %{}) do
       {:ok, user} = Ripple.Users.create_user(%{username: "tester"})
@@ -43,7 +43,7 @@ defmodule Ripple.StationsTest do
                Stations.create_station(@valid_attrs |> Map.put(:creator_id, user.id))
 
       assert station.name == "some name"
-      assert station.play_type == "public"
+      assert station.visibility == "public"
       assert station.slug == "some-name"
       assert station.tags == []
     end

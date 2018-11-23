@@ -73,7 +73,7 @@ defmodule Ripple.Stations.StationStore do
   end
 
   def list_stations(start \\ 0, e \\ 10) do
-    {:ok, res} = :lbm_kv.match(@table, :_, %{play_type: "public"})
+    {:ok, res} = :lbm_kv.match(@table, :_, %{visibility: "public"})
 
     stations = res |> Stream.map(&elem(&1, 1)) |> Enum.reverse() |> Enum.slice(start, e)
 

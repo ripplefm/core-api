@@ -101,7 +101,7 @@ defmodule Ripple.Stations.StationServer do
 
   def handle_cast(
         {:add_track, track_url, %User{} = user},
-        %LiveStation{play_type: "private", current_track: nil} = state
+        %LiveStation{visibility: "private", current_track: nil} = state
       ) do
     if user.id == state.creator_id do
       track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
@@ -113,7 +113,7 @@ defmodule Ripple.Stations.StationServer do
 
   def handle_cast(
         {:add_track, track_url, %User{} = user},
-        %LiveStation{play_type: "private"} = state
+        %LiveStation{visibility: "private"} = state
       ) do
     if user.id == state.creator_id do
       track = Tracks.get_or_create_track(track_url) |> Map.put(:dj, user)
@@ -190,7 +190,7 @@ defmodule Ripple.Stations.StationServer do
     %LiveStation{
       id: station.id,
       name: station.name,
-      play_type: station.play_type,
+      visibility: station.visibility,
       slug: station.slug,
       creator_id: creator_id,
       guests: 1,
@@ -207,7 +207,7 @@ defmodule Ripple.Stations.StationServer do
     %LiveStation{
       id: station.id,
       name: station.name,
-      play_type: station.play_type,
+      visibility: station.visibility,
       slug: station.slug,
       creator_id: creator_id,
       guests: 0,

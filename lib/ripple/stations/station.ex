@@ -7,7 +7,7 @@ defmodule Ripple.Stations.Station do
   @foreign_key_type :binary_id
   schema "stations" do
     field(:name, :string)
-    field(:play_type, :string)
+    field(:visibility, :string)
     field(:slug, :string)
     field(:tags, {:array, :string})
     field(:creator_id, :binary_id)
@@ -18,17 +18,17 @@ defmodule Ripple.Stations.Station do
   @doc false
   def changeset(%Station{} = station, attrs) do
     station
-    |> cast(attrs, [:name, :play_type, :tags, :creator_id])
-    |> validate_required([:name, :play_type, :tags, :creator_id])
+    |> cast(attrs, [:name, :visibility, :tags, :creator_id])
+    |> validate_required([:name, :visibility, :tags, :creator_id])
     |> validate_length(:name, min: 4)
-    |> validate_inclusion(:play_type, ["public", "private"])
+    |> validate_inclusion(:visibility, ["public", "private"])
     |> generate_slug
     |> validate_required([:slug])
     |> unique_constraint(:slug)
   end
 
   defp generate_slug(changeset) do
-    case get_field(changeset, :play_type) do
+    case get_field(changeset, :visibility) do
       "private" -> put_change(changeset, :slug, Ecto.UUID.generate() |> binary_part(24, 8))
       "public" -> put_change(changeset, :slug, Slug.slugify(get_field(changeset, :name)))
       _ -> changeset

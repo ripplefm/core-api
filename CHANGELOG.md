@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2018-11-23
+
+### Changed
+
+- Station field `play_type` renamed to `visibility`
+
 ## [0.1.3] - 2018-11-23
 
 ### Fixed

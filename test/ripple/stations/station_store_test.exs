@@ -4,12 +4,12 @@ defmodule Ripple.StationStoreTest do
   alias Ripple.Stations.{StationStore, StationServer}
 
   @valid_attrs %{
-    play_type: "public",
+    visibility: "public",
     tags: []
   }
 
   describe "StationStore" do
-    def station_fixture(username, station_name) do
+    def station_fixture(username, station_name, visibility \\ "public") do
       {:ok, user} = Ripple.Users.create_user(%{username: username})
 
       {:ok, station} =
@@ -17,6 +17,7 @@ defmodule Ripple.StationStoreTest do
         |> Enum.into(@valid_attrs)
         |> Map.put(:name, station_name)
         |> Map.put(:creator_id, user.id)
+        |> Map.put(:visibility, visibility)
         |> Ripple.Stations.create_station()
 
       {:ok, pid} = Ripple.Stations.StationServer.start(station, user)
@@ -66,6 +67,15 @@ defmodule Ripple.StationStoreTest do
       {:ok, [first, second]} = StationStore.list_stations()
       assert first.slug == station2.slug
       assert second.slug == station.slug
+    end
+
+    test "list_stations/0 only includes stations with 'public' visibility", %{station: station} do
+      %{station: _station2, user: _user} = station_fixture("tester2", "Test Station 2", "private")
+
+      {:ok, stations} = StationStore.list_stations()
+
+      assert Enum.count(stations) == 1
+      assert List.first(stations).slug == station.slug
     end
 
     test "read/1 returns corresponding station", %{station: station} do

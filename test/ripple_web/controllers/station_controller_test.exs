@@ -3,8 +3,8 @@ defmodule RippleWeb.StationControllerTest do
 
   alias Ripple.Stations
 
-  @create_attrs %{name: "some name", play_type: "public", tags: []}
-  @invalid_attrs %{name: nil, play_type: nil, tags: nil}
+  @create_attrs %{name: "some name", visibility: "public", tags: []}
+  @invalid_attrs %{name: nil, visibility: nil, tags: nil}
 
   def fixture(:station) do
     {:ok, user} = Ripple.Users.create_user(%{username: "tester"})
@@ -64,7 +64,7 @@ defmodule RippleWeb.StationControllerTest do
                "slug" => slug,
                "id" => id,
                "name" => "some name",
-               "play_type" => "public",
+               "visibility" => "public",
                "tags" => [],
                "current_track" => nil,
                "guests" => 0,
