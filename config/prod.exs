@@ -16,6 +16,7 @@ use Mix.Config
 config :ripple, RippleWeb.Endpoint,
   load_from_system_env: true,
   url: [host: "api.ripple.fm", port: 80],
+  check_origin: false,
   server: true
 
 # Do not print debug messages in production
