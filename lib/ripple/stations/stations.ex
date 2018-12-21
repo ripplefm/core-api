@@ -1,40 +1,13 @@
 defmodule Ripple.Stations do
-  @moduledoc """
-  The Stations context.
-  """
-
   import Ecto.Query, warn: false
   alias Ripple.Repo
 
-  alias Ripple.Stations.{Station, StationStore}
+  alias Ripple.Stations.{Station, StationStore, StationTrackHistory}
 
-  @doc """
-  Returns the list of stations.
-
-  ## Examples
-
-      iex> list_stations()
-      [%Station{}, ...]
-
-  """
   def list_stations do
     StationStore.list_stations()
   end
 
-  @doc """
-  Gets a single station.
-
-  Raises `Ecto.NoResultsError` if the Station does not exist.
-
-  ## Examples
-
-      iex> get_station!(123)
-      %Station{}
-
-      iex> get_station!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_station!(slug) do
     case StationStore.read(slug) do
       {:ok, nil} -> Repo.get_by!(Station, slug: slug)
@@ -43,34 +16,56 @@ defmodule Ripple.Stations do
     end
   end
 
-  @doc """
-  Creates a station.
+  def get_station(slug) do
+    try do
+      get_station!(slug)
+    rescue
+      _ in Ecto.NoResultsError -> {:error, :not_found}
+    end
+  end
 
-  ## Examples
-
-      iex> create_station(%{field: value})
-      {:ok, %Station{}}
-
-      iex> create_station(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_station(attrs \\ %{}) do
     %Station{}
     |> Station.changeset(attrs)
     |> Repo.insert()
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking station changes.
-
-  ## Examples
-
-      iex> change_station(station)
-      %Ecto.Changeset{source: %Station{}}
-
-  """
   def change_station(%Station{} = station) do
     Station.changeset(station, %{})
+  end
+
+  def add_track_to_history(station_id, user_id, track_id) do
+    %StationTrackHistory{}
+    |> StationTrackHistory.changeset(%{
+      station_id: station_id,
+      user_id: user_id,
+      track_id: track_id
+    })
+    |> Repo.insert()
+  end
+
+  def mark_track_as_finished(station_id) do
+    from(h in StationTrackHistory,
+      where: h.station_id == ^station_id,
+      where: is_nil(h.finished_at)
+    )
+    |> Repo.update_all(set: [finished_at: DateTime.utc_now()])
+  end
+
+  def get_history(slug, last_timestamp \\ nil) do
+    case get_station(slug) do
+      {:error, err} -> {:error, err}
+      station -> {:ok, get_history_for(station, last_timestamp)}
+    end
+  end
+
+  defp get_history_for(station, nil) do
+    StationTrackHistory.for_station(station.id) |> Repo.all()
+  end
+
+  defp get_history_for(station, last_timestamp) do
+    StationTrackHistory.for_station(station.id)
+    |> StationTrackHistory.older_than(last_timestamp)
+    |> Repo.all()
   end
 end
