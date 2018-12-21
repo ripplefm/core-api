@@ -27,6 +27,7 @@ defmodule Ripple.ClusterHelper do
   end
 
   def cleanup() do
+    Ripple.Repo.delete_all(Ripple.Stations.StationTrackHistory)
     Ripple.Repo.delete_all(Ripple.Stations.Station)
     Ripple.Repo.delete_all(Ripple.Users.User)
     Ripple.Repo.delete_all(Ripple.Tracks.Track)
