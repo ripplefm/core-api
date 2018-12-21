@@ -18,6 +18,8 @@ defmodule RippleWeb.Router do
       param: "slug"
     )
 
+    get("/stations/:slug/history", StationHistoryController, :show, param: "slug")
+
     post("/playlists/:slug", PlaylistController, :add, param: "slug")
     delete("/playlists/:slug", PlaylistController, :remove, param: "slug")
     resources("/playlists", PlaylistController, only: [:create, :show], param: "slug")
