@@ -21,7 +21,8 @@ defmodule RippleWeb.StationView do
       tags: station.tags,
       guests: Map.get(station, :guests, 0),
       total_listeners: Enum.count(station.users) + Map.get(station, :guests, 0),
-      slug: station.slug
+      slug: station.slug,
+      followers: station.followers
     }
   end
 
@@ -36,7 +37,8 @@ defmodule RippleWeb.StationView do
         render_one(Map.get(station, :current_track, nil), TrackView, "current_track.json"),
       queue: render_many(Map.get(station, :queue, []), TrackView, "track_hidden.json"),
       users: render_many(Map.get(station, :users, []), UserView, "user.json"),
-      guests: Map.get(station, :guests, 0)
+      guests: Map.get(station, :guests, 0),
+      followers: station.followers
     }
   end
 end
