@@ -69,7 +69,8 @@ defmodule RippleWeb.StationControllerTest do
                "current_track" => nil,
                "guests" => 0,
                "users" => [],
-               "queue" => []
+               "queue" => [],
+               "followers" => 0
              }
     end
 
