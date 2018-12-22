@@ -8,6 +8,7 @@ defmodule Ripple.Users.User do
   @derive {Poison.Encoder, only: [:id, :username]}
   schema "users" do
     field(:username, :string)
+    field(:scopes, {:array, :string}, virtual: true, default: [])
   end
 
   @doc false
