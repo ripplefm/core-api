@@ -1,7 +1,9 @@
 defmodule Ripple.Stations.Station do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Ripple.Stations.Station
+  import Ecto.Query
+
+  alias Ripple.Stations.{Station, StationFollower}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -11,6 +13,7 @@ defmodule Ripple.Stations.Station do
     field(:slug, :string)
     field(:tags, {:array, :string})
     field(:creator_id, :binary_id)
+    field(:followers, :integer, virtual: true, default: 0)
 
     timestamps()
   end
@@ -25,6 +28,20 @@ defmodule Ripple.Stations.Station do
     |> generate_slug
     |> validate_required([:slug])
     |> unique_constraint(:slug)
+  end
+
+  def find(slug) do
+    from(s in Station,
+      where: s.slug == ^slug,
+      left_join: follower in StationFollower,
+      on: follower.station_id == s.id,
+      select: %{
+        s
+        | followers: fragment("count(?)", follower.user_id)
+      },
+      group_by: [s.id, follower.station_id],
+      order_by: [desc: fragment("count(?)", follower.user_id)]
+    )
   end
 
   defp generate_slug(changeset) do
