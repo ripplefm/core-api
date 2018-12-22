@@ -1,5 +1,5 @@
 # For current user %{ scopes, username, id }
-defimpl Canada.Can, for: Map do
+defimpl Canada.Can, for: Ripple.Users.User do
   alias Ripple.Stations.Station
   alias Ripple.Playlists.Playlist
 
