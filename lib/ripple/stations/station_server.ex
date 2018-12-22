@@ -151,13 +151,13 @@ defmodule Ripple.Stations.StationServer do
 
   def handle_info(:track_finished, %LiveStation{queue: []} = state) do
     new_state = %LiveStation{state | current_track: nil}
-    emit_event(:station_track_finished, %{station: new_state, target: new_state})
+    emit_event(:station_track_finished, %{station: new_state, target: state.current_track})
     {:noreply, new_state}
   end
 
   def handle_info(:track_finished, %LiveStation{queue: [next | queue]} = state) do
     new_state = %LiveStation{state | current_track: next, queue: queue}
-    emit_event(:station_track_finished, %{station: new_state, target: new_state})
+    emit_event(:station_track_finished, %{station: new_state, target: state.current_track})
     new_state |> start_track
   end
 

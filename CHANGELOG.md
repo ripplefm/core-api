@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2018-12-21
+
+### Added
+
+- Stations now save track history and current track in postgres
+- `/stations/:slug/history` endpoint for fetching station track history
+
 ## [0.1.4] - 2018-11-23
 
 ### Changed
