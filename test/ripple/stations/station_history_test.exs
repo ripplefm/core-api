@@ -93,15 +93,18 @@ defmodule Ripple.StationHistoryTest do
 
     test "get_history/2 returns history for station older than provided timestamp", context do
       Stations.add_track_to_history(context.station.id, context.user.id, context.track.id)
+      Process.sleep(1000)
       Stations.mark_track_as_finished(context.station.id)
-      Process.sleep(500)
+      Process.sleep(1000)
       Stations.add_track_to_history(context.station.id, context.user.id, context.track.id)
+      Process.sleep(1000)
       Stations.mark_track_as_finished(context.station.id)
 
       {:ok, history} = Stations.get_history(context.station.slug)
       first = List.first(history)
       {:ok, older} = Stations.get_history(context.station.slug, first.finished_at)
       assert Enum.count(older) == 1
+      assert List.first(older).started_at < first.started_at
       assert List.first(older).finished_at < first.finished_at
     end
 
