@@ -37,6 +37,12 @@ defmodule Ripple.Users do
   """
   def get_user!(username), do: Repo.get_by!(User, username: username)
 
+  def get_user(username) do
+    get_user!(username)
+  rescue
+    _ in Ecto.NoResultsError -> {:error, :not_found}
+  end
+
   @doc """
   Creates a user.
 
