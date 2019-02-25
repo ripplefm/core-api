@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2019-02-25
+
+### Added
+
+- Stations context has function to get all public stations created by a user
+- Stations created by user `autoplayer` are automatically started
+- Auto player servers are started for stations created by `autoplayer` to play tracks defined in auto player configs
+
 ## [0.1.5] - 2018-12-21
 
 ### Added
