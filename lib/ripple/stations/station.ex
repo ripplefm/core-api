@@ -1,6 +1,8 @@
 defmodule Ripple.Stations.Station do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
+
   alias Ripple.Stations.Station
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -33,5 +35,17 @@ defmodule Ripple.Stations.Station do
       "public" -> put_change(changeset, :slug, Slug.slugify(get_field(changeset, :name)))
       _ -> changeset
     end
+  end
+
+  def all_stations do
+    from(s in Station, left_join: creator in Ripple.Users.User, on: creator.id == s.creator_id)
+  end
+
+  def with_public_visibility(queryable \\ Station) do
+    from(s in queryable, where: s.visibility == "public")
+  end
+
+  def created_by(queryable \\ Station, user_id) do
+    from(s in queryable, where: s.creator_id == ^user_id)
   end
 end

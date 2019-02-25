@@ -3,6 +3,7 @@ defmodule Ripple.Stations do
   alias Ripple.Repo
 
   alias Ripple.Stations.{Station, StationStore, StationTrackHistory}
+  alias Ripple.Users.User
 
   def list_stations do
     StationStore.list_stations()
@@ -22,6 +23,13 @@ defmodule Ripple.Stations do
     rescue
       _ in Ecto.NoResultsError -> {:error, :not_found}
     end
+  end
+
+  def get_stations_created_by(%User{} = user) do
+    Station.all_stations()
+    |> Station.with_public_visibility()
+    |> Station.created_by(user.id)
+    |> Repo.all()
   end
 
   def create_station(attrs \\ %{}) do

@@ -9,6 +9,11 @@ defmodule Ripple.ClusterConnector do
       {Ripple.StationStoreSyncSupervisor, node}
     )
 
+    Horde.Cluster.join_hordes(
+      Ripple.StationAutoPlayerSupervisor,
+      {Ripple.StationAutoPlayerSupervisor, node}
+    )
+
     Horde.Cluster.join_hordes(Ripple.StationSupervisor, {Ripple.StationSupervisor, node})
     Horde.Cluster.join_hordes(Ripple.StationRegistry, {Ripple.StationRegistry, node})
 
