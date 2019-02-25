@@ -22,6 +22,13 @@ defmodule Ripple.Stations.StationServer do
     )
   end
 
+  def is_running?(slug) do
+    case Horde.Registry.lookup(via_tuple(slug)) do
+      p when is_pid(p) -> true
+      _ -> false
+    end
+  end
+
   def add_user(slug, user) do
     GenServer.call(via_tuple(slug), {:add_user, user})
   end
