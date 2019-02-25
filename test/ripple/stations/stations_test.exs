@@ -80,5 +80,42 @@ defmodule Ripple.StationsTest do
       station = station_fixture()
       assert %Ecto.Changeset{} = Stations.change_station(station)
     end
+
+    test "get_stations_created_by/1 returns stations only created by the user" do
+      station_created_by_user = station_fixture()
+      user = Ripple.Users.get_user("tester")
+      {:ok, user2} = Ripple.Users.create_user(%{username: "tester2"})
+
+      {:ok, station_created_by_other} =
+        Stations.create_station(%{
+          creator_id: user2.id,
+          name: "some station 2",
+          tags: [],
+          visibility: "public"
+        })
+
+      results = Stations.get_stations_created_by(user)
+
+      assert results == [station_created_by_user]
+      assert station_created_by_other not in results
+    end
+
+    test "get_stations_created_by/1 returns only public stations" do
+      public_station = station_fixture()
+      user = Ripple.Users.get_user("tester")
+
+      {:ok, private_station} =
+        Stations.create_station(%{
+          creator_id: user.id,
+          name: "private_station",
+          tags: [],
+          visibility: "private"
+        })
+
+      results = Stations.get_stations_created_by(user)
+
+      assert results == [public_station]
+      assert private_station not in results
+    end
   end
 end
