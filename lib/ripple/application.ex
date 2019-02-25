@@ -25,7 +25,10 @@ defmodule Ripple.Application do
       {Horde.Supervisor,
        name: Ripple.StationAutoPlayerSupervisor,
        strategy: :one_for_one,
-       id: Ripple.StationAutoPlayerSupervisor}
+       id: Ripple.StationAutoPlayerSupervisor},
+      worker(Task, [&Ripple.AutoPlayers.Initializer.start_auto_player_stations/0],
+        restart: :temporary
+      )
     ]
 
     children =
