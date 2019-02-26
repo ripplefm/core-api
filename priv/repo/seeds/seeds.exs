@@ -3,7 +3,8 @@
 #     mix run priv/repo/seeds.exs
 
 # Load templates
-{station_templates, _} = Code.eval_file("priv/repo/seeds/station_templates.exs")
+{station_templates, _} =
+  Code.eval_file("#{:code.priv_dir(:ripple)}/repo/seeds/station_templates.exs")
 
 # Get or create user
 {:ok, user} =
@@ -14,7 +15,7 @@
 
 # Ensure all stations defined in templates exist
 station_templates
-|> Enum.filter(&(Ripple.Stations.get_station(&1.slug) == {:error, :not_found}))
+|> Enum.filter(&(Ripple.Stations.get_station(&1.name |> Slug.slugify()) == {:error, :not_found}))
 |> Enum.each(fn template ->
   Ripple.Stations.create_station(%{
     creator_id: user.id,
