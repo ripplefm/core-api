@@ -57,6 +57,14 @@ defmodule Ripple.Playlists.Playlist do
     from(p in queryable, where: p.creator_id == ^user_id)
   end
 
+  def followed_by(queryable \\ Playlist, user_id) do
+    from(p in queryable,
+      join: follower in PlaylistFollower,
+      on: follower.playlist_id == p.id,
+      where: follower.user_id == ^user_id
+    )
+  end
+
   def with_slug(queryable \\ Playlist, slug) do
     from(p in queryable, where: p.slug == ^slug)
   end

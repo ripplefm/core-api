@@ -28,6 +28,10 @@ defimpl Canada.Can, for: Ripple.Users.User do
     "playlists:write" in scopes
   end
 
+  def can?(%{scopes: scopes}, action, Playlist)
+      when action in [:show_created_playlists, :show_following_playlists],
+      do: "playlists:read" in scopes or "playlists:write" in scopes
+
   def can?(%{scopes: scopes}, action, PlaylistFollower) when action in [:create, :delete] do
     "playlists:write" in scopes
   end

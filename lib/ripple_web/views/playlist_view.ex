@@ -9,6 +9,10 @@ defmodule RippleWeb.PlaylistView do
     }
   end
 
+  def render("many.json", %{playlists: playlists}) do
+    %{playlists: render_many(playlists, PlaylistView, "playlist.json")}
+  end
+
   def render("show.json", %{playlist: playlist}) do
     render_one(playlist, PlaylistView, "playlist.json")
   end
