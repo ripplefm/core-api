@@ -114,8 +114,47 @@ defmodule Ripple.StationsTest do
 
       results = Stations.get_stations_created_by(user)
 
-      assert results == [public_station, private_station]
+      assert results -- [public_station, private_station] == []
       assert private_station in results
+    end
+
+    test "get_stations_followed_by/1 returns stations only followed by the user" do
+      station1 = station_fixture()
+      user = Ripple.Users.get_user("tester")
+
+      {:ok, station2} =
+        Stations.create_station(%{
+          creator_id: user.id,
+          name: "private_station",
+          tags: [],
+          visibility: "private"
+        })
+
+      {:ok, _} = Stations.follow_station(station1, user)
+
+      results = Stations.get_stations_followed_by(user)
+      {:ok, station1} = Stations.get_station(station1.slug)
+      assert results == [station1]
+      assert station2 not in results
+    end
+
+    test "get_stations_followed_by/1 includes public and private stations" do
+      station1 = station_fixture()
+      user = Ripple.Users.get_user("tester")
+
+      {:ok, station2} =
+        Stations.create_station(%{
+          creator_id: user.id,
+          name: "private_station",
+          tags: [],
+          visibility: "private"
+        })
+
+      {:ok, _} = Stations.follow_station(station1, user)
+      {:ok, _} = Stations.follow_station(station2, user)
+
+      results = Stations.get_stations_followed_by(user)
+      assert Enum.count(results) == 2
     end
   end
 end

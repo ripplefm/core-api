@@ -28,6 +28,10 @@ defmodule Ripple.Stations do
     |> Repo.all()
   end
 
+  def get_stations_followed_by(%User{} = user) do
+    Station.all_stations() |> Station.followed_by(user.id) |> Repo.all()
+  end
+
   def create_station(attrs \\ %{}) do
     %Station{}
     |> Station.changeset(attrs)
