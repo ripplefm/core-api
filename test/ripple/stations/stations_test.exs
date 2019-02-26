@@ -100,7 +100,7 @@ defmodule Ripple.StationsTest do
       assert station_created_by_other not in results
     end
 
-    test "get_stations_created_by/1 returns only public stations" do
+    test "get_stations_created_by/1 returns public and private stations" do
       public_station = station_fixture()
       user = Ripple.Users.get_user("tester")
 
@@ -114,8 +114,8 @@ defmodule Ripple.StationsTest do
 
       results = Stations.get_stations_created_by(user)
 
-      assert results == [public_station]
-      assert private_station not in results
+      assert results == [public_station, private_station]
+      assert private_station in results
     end
   end
 end

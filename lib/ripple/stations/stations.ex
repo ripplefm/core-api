@@ -24,7 +24,6 @@ defmodule Ripple.Stations do
 
   def get_stations_created_by(%User{} = user) do
     Station.all_stations()
-    |> Station.with_public_visibility()
     |> Station.created_by(user.id)
     |> Repo.all()
   end
