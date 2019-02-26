@@ -7,66 +7,26 @@ defmodule Ripple.Playlists do
   alias Ripple.Repo
 
   alias Ripple.Tracks
-  alias Ripple.Playlists.{Playlist, PlaylistTrack}
+  alias Ripple.Users.User
+  alias Ripple.Playlists.{Playlist, PlaylistTrack, PlaylistFollower}
 
-  @doc """
-  Returns the list of playlists.
-
-  ## Examples
-
-      iex> list_playlists()
-      [%Playlist{}, ...]
-
-  """
   def list_playlists do
     Repo.all(Playlist)
   end
 
-  @doc """
-  Gets a single playlist.
-
-  Raises `Ecto.NoResultsError` if the Playlist does not exist.
-
-  ## Examples
-
-      iex> get_playlist!(123)
-      %Playlist{}
-
-      iex> get_playlist!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_playlist!(slug) do
-    Repo.get_by!(Playlist, slug: slug) |> Repo.preload([:tracks, :creator])
+    Playlist.all_playlists()
+    |> Playlist.with_slug(slug)
+    |> Repo.one!()
+    |> Repo.preload([:tracks, :creator])
   end
 
-  @doc """
-  Creates a playlist.
-
-  ## Examples
-
-      iex> create_playlist(%{field: value})
-      {:ok, %Playlist{}}
-
-      iex> create_playlist(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_playlist(attrs \\ %{}) do
     %Playlist{}
     |> Playlist.changeset(attrs)
     |> Repo.insert()
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking playlist changes.
-
-  ## Examples
-
-      iex> change_playlist(playlist)
-      %Ecto.Changeset{source: %Playlist{}}
-
-  """
   def change_playlist(%Playlist{} = playlist) do
     Playlist.changeset(playlist, %{})
   end
@@ -85,6 +45,8 @@ defmodule Ripple.Playlists do
     else
       {:error, :playlist_not_found}
     end
+  rescue
+    Ecto.NoResultsError -> {:error, :playlist_not_found}
   end
 
   def add_track_to_playlist(user, slug, track_url) do
@@ -132,6 +94,26 @@ defmodule Ripple.Playlists do
 
       not visible_to_user?(playlist, user) ->
         {:error, :playlist_not_found}
+    end
+  end
+
+  def follow_playlist(%Playlist{} = playlist, %User{} = user) do
+    if playlist |> visible_to_user?(user) do
+      PlaylistFollower.build(playlist.id, user.id) |> Repo.insert()
+    else
+      {:error, :not_found}
+    end
+  rescue
+    Ecto.ConstraintError -> {:error, :already_following}
+  end
+
+  def unfollow_playlist(%Playlist{} = playlist, %User{} = user) do
+    result = PlaylistFollower.find(playlist.id, user.id) |> Repo.delete_all()
+
+    case result do
+      {1, nil} -> :ok
+      {0, nil} -> {:error, :not_following}
+      _ -> {:error, :not_found}
     end
   end
 end

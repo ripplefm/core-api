@@ -1,7 +1,7 @@
 # For current user %{ scopes, username, id }
 defimpl Canada.Can, for: Ripple.Users.User do
   alias Ripple.Stations.{Station, StationFollower}
-  alias Ripple.Playlists.Playlist
+  alias Ripple.Playlists.{Playlist, PlaylistFollower}
 
   def can?(%{scopes: scopes}, :create, Station) do
     "stations:write" in scopes
@@ -21,6 +21,10 @@ defimpl Canada.Can, for: Ripple.Users.User do
   end
 
   def can?(%{scopes: scopes}, :create, Playlist) do
+    "playlists:write" in scopes
+  end
+
+  def can?(%{scopes: scopes}, action, PlaylistFollower) when action in [:create, :delete] do
     "playlists:write" in scopes
   end
 
