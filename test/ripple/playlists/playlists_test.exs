@@ -100,10 +100,8 @@ defmodule Ripple.PlaylistsTest do
       assert Playlists.visible_to_user?(playlist, user) == false
     end
 
-    test "get_playlist_for_user/2 raises error for non-existent playlist", %{user: user} do
-      assert_raise Ecto.NoResultsError, fn ->
-        Playlists.get_playlist_for_user("nothing", user)
-      end
+    test "get_playlist_for_user/2 returns error tuple for non-existent playlist", %{user: user} do
+      assert {:error, :playlist_not_found} == Playlists.get_playlist_for_user("nothing", user)
     end
 
     test "get_playlist_for_user/2 returns public playlist for creator", %{
