@@ -11,17 +11,15 @@ defmodule Ripple.Stations do
 
   def get_station!(slug) do
     case StationStore.read(slug) do
-      {:ok, nil} -> Repo.one!(Station.find(slug))
+      {:ok, nil} -> Station.all_stations() |> Station.with_slug(slug) |> Repo.one!()
       {:ok, station} -> station
-      _ -> Repo.one!(Station.find(slug))
     end
   end
 
   def get_station(slug) do
-    case slug |> Station.find() |> Repo.one() do
-      nil -> {:error, :not_found}
-      station -> {:ok, station}
-    end
+    {:ok, get_station!(slug)}
+  rescue
+    _ in Ecto.NoResultsError -> {:error, :not_found}
   end
 
   def get_stations_created_by(%User{} = user) do
@@ -77,12 +75,10 @@ defmodule Ripple.Stations do
   end
 
   def follow_station(%Station{} = station, %User{} = user) do
-    try do
-      StationFollower.build(station.id, user.id) |> Repo.insert()
-    rescue
-      Ecto.ConstraintError -> {:error, :already_following}
-      _ -> {:error, :not_found}
-    end
+    StationFollower.build(station.id, user.id) |> Repo.insert()
+  rescue
+    Ecto.ConstraintError -> {:error, :already_following}
+    _ -> {:error, :not_found}
   end
 
   def unfollow_station(%Station{} = station, %User{} = user) do

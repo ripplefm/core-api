@@ -39,12 +39,12 @@ defmodule RippleWeb.FallbackController do
   def call(conn, {:error, :already_following}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(RippleWeb.ErrorView, :"422", message: "Already following station")
+    |> render(RippleWeb.ErrorView, :"422", message: "Already following resource")
   end
 
   def call(conn, {:error, :not_following}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(RippleWeb.ErrorView, :"422", message: "Not following station")
+    |> render(RippleWeb.ErrorView, :"422", message: "Not following resource")
   end
 end

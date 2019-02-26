@@ -70,7 +70,7 @@ defmodule RippleWeb.StationFollowerControllerTest do
       conn = post(conn, station_follower_path(conn, :create, station.slug))
 
       assert json_response(conn, 422) == %{
-               "errors" => %{"detail" => "Already following station"}
+               "errors" => %{"detail" => "Already following resource"}
              }
     end
   end
@@ -123,7 +123,7 @@ defmodule RippleWeb.StationFollowerControllerTest do
       conn = delete(conn, station_follower_path(conn, :delete, station.slug))
 
       assert json_response(conn, 422) == %{
-               "errors" => %{"detail" => "Not following station"}
+               "errors" => %{"detail" => "Not following resource"}
              }
     end
   end
