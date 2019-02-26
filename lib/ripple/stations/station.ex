@@ -30,6 +30,20 @@ defmodule Ripple.Stations.Station do
     |> unique_constraint(:slug)
   end
 
+  def find(slug) do
+    from(s in Station,
+      where: s.slug == ^slug,
+      left_join: follower in StationFollower,
+      on: follower.station_id == s.id,
+      select: %{
+        s
+        | followers: fragment("count(?)", follower.user_id)
+      },
+      group_by: [s.id, follower.station_id],
+      order_by: [desc: fragment("count(?)", follower.user_id)]
+    )
+  end
+
   defp generate_slug(changeset) do
     case get_field(changeset, :visibility) do
       "private" -> put_change(changeset, :slug, Ecto.UUID.generate() |> binary_part(24, 8))

@@ -70,7 +70,11 @@ defmodule RippleWeb.StationFollowerControllerTest do
       conn = post(conn, station_follower_path(conn, :create, station.slug))
 
       assert json_response(conn, 422) == %{
+<<<<<<< HEAD
                "errors" => %{"detail" => "Already following resource"}
+=======
+               "errors" => %{"detail" => "Already following station"}
+>>>>>>> 8b5fa89a20397e604ef1239428a11cec0b3b527b
              }
     end
   end
