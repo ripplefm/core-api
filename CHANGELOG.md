@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2019-02-26
+
+## Added
+
+- Endpoints for the `me` resource to retrieve current users
+  created and followed stations/playlists
+
 ## [0.1.7] - 2019-02-26
 
 ### Added
