@@ -28,6 +28,6 @@ end)
 # Create or update autoplayer configs for all stations defined in templates
 station_templates
 |> Enum.each(fn template ->
-  station = template.name |> Slug.slugify() |> Ripple.Stations.get_station()
+  {:ok, station} = template.name |> Slug.slugify() |> Ripple.Stations.get_station()
   Ripple.AutoPlayers.upsert_config(station, template.sources)
 end)

@@ -23,7 +23,7 @@ defmodule Ripple.AutoPlayers.AutoPlayerServer do
     %{play_sources: sources} = Ripple.AutoPlayers.get_config_for_station(station)
     next_url = Ripple.AutoPlayers.PlaySourceResolver.get_next_url(sources)
 
-    queue_state = Ripple.Stations.get_station(station.slug)
+    {:ok, queue_state} = Ripple.Stations.get_station(station.slug)
     users_in_queue = Enum.map(queue_state.queue, fn t -> t.dj.username end)
 
     unless user.username in users_in_queue do
@@ -31,7 +31,7 @@ defmodule Ripple.AutoPlayers.AutoPlayerServer do
       Process.sleep(1_000)
     end
 
-    current_state = Ripple.Stations.get_station(station.slug)
+    {:ok, current_state} = Ripple.Stations.get_station(station.slug)
     sleep_duration = max(current_state.current_track.duration - 2_000, 0)
     Process.send_after(self(), :pick_track, sleep_duration)
     {:noreply, state}
