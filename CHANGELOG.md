@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10] - 2019-02-27
+
+### Fixed
+
+- Fix calls to `Stations.get_station/2` to handle updated tuple returns
+
 ## [0.1.9] - 2019-02-27
 
 ### Fixed
