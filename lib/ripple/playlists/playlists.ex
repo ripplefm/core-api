@@ -21,6 +21,20 @@ defmodule Ripple.Playlists do
     |> Repo.preload([:tracks, :creator])
   end
 
+  def get_playlists_created_by(%User{} = user) do
+    Playlist.all_playlists()
+    |> Playlist.created_by(user.id)
+    |> Repo.all()
+    |> Repo.preload(:tracks)
+  end
+
+  def get_playlists_followed_by(%User{} = user) do
+    Playlist.all_playlists()
+    |> Playlist.followed_by(user.id)
+    |> Repo.all()
+    |> Repo.preload(:tracks)
+  end
+
   def create_playlist(attrs \\ %{}) do
     %Playlist{}
     |> Playlist.changeset(attrs)

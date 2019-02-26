@@ -20,7 +20,7 @@ defmodule RippleWeb.StationView do
       queue: Enum.count(Map.get(station, :queue, [])),
       tags: station.tags,
       guests: Map.get(station, :guests, 0),
-      total_listeners: Enum.count(station.users) + Map.get(station, :guests, 0),
+      total_listeners: Enum.count(Map.get(station, :users, [])) + Map.get(station, :guests, 0),
       slug: station.slug,
       followers: station.followers
     }

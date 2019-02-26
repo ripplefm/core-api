@@ -270,5 +270,50 @@ defmodule Ripple.PlaylistsTest do
     test "change_playlist/1 returns a playlist changeset", %{playlist: playlist} do
       assert %Ecto.Changeset{} = Playlists.change_playlist(playlist)
     end
+
+    test "get_playlists_created_by/1 returns playlists only created by the user", %{
+      user: user
+    } do
+      private = private_fixture()
+
+      results = Playlists.get_playlists_created_by(user)
+
+      assert Enum.count(results) == 1
+      assert private not in results
+    end
+
+    test "get_playlists_created_by/1 includes public and private playlists", %{
+      user: user
+    } do
+      {:ok, _} =
+        Playlists.create_playlist(%{
+          creator_id: user.id,
+          name: "private",
+          tags: [],
+          visibility: "private"
+        })
+
+      results = Playlists.get_playlists_created_by(user)
+
+      assert Enum.count(results) == 2
+    end
+
+    test "get_playlists_followed_by/1 returns only playlists followed by the user", %{
+      user: user,
+      playlist: playlist
+    } do
+      {:ok, _} =
+        Playlists.create_playlist(%{
+          creator_id: user.id,
+          name: "other",
+          tags: [],
+          visibility: "public"
+        })
+
+      {:ok, _} = Playlists.follow_playlist(playlist, user)
+
+      results = Playlists.get_playlists_followed_by(user)
+      assert Enum.count(results) == 1
+    end
   end
 end

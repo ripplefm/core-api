@@ -75,4 +75,12 @@ defmodule Ripple.Stations.Station do
   def created_by(queryable \\ Station, user_id) do
     from(s in queryable, where: s.creator_id == ^user_id)
   end
+
+  def followed_by(queryable \\ Station, user_id) do
+    from(s in queryable,
+      left_join: follower in StationFollower,
+      on: follower.station_id == s.id,
+      where: follower.user_id == ^user_id
+    )
+  end
 end

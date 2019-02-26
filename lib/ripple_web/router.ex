@@ -27,5 +27,10 @@ defmodule RippleWeb.Router do
     resources("/playlists", PlaylistController, only: [:create, :show], param: "slug")
     post("/playlists/:slug/followers", PlaylistFollowerController, :create, param: "slug")
     delete("/playlists/:slug/followers", PlaylistFollowerController, :delete, param: "slug")
+
+    get("/me/stations", MeController, :show_created_stations)
+    get("/me/stations/following", MeController, :show_following_stations)
+    get("/me/playlists", MeController, :show_created_playlists)
+    get("/me/playlists/following", MeController, :show_following_playlists)
   end
 end

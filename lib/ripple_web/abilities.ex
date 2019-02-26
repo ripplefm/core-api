@@ -7,6 +7,10 @@ defimpl Canada.Can, for: Ripple.Users.User do
     "stations:write" in scopes
   end
 
+  def can?(%{scopes: scopes}, action, Station)
+      when action in [:show_created_stations, :show_following_stations],
+      do: "stations:read" in scopes or "stations:write" in scopes
+
   def can?(%{scopes: scopes}, action, StationFollower) when action in [:create, :delete] do
     "stations:write" in scopes
   end
@@ -23,6 +27,10 @@ defimpl Canada.Can, for: Ripple.Users.User do
   def can?(%{scopes: scopes}, :create, Playlist) do
     "playlists:write" in scopes
   end
+
+  def can?(%{scopes: scopes}, action, Playlist)
+      when action in [:show_created_playlists, :show_following_playlists],
+      do: "playlists:read" in scopes or "playlists:write" in scopes
 
   def can?(%{scopes: scopes}, action, PlaylistFollower) when action in [:create, :delete] do
     "playlists:write" in scopes
