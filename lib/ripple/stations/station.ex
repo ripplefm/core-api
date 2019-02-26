@@ -3,7 +3,7 @@ defmodule Ripple.Stations.Station do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Ripple.Stations.Station
+  alias Ripple.Stations.{Station, StationFollower}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -13,6 +13,7 @@ defmodule Ripple.Stations.Station do
     field(:slug, :string)
     field(:tags, {:array, :string})
     field(:creator_id, :binary_id)
+    field(:followers, :integer, virtual: true, default: 0)
 
     timestamps()
   end
@@ -29,6 +30,20 @@ defmodule Ripple.Stations.Station do
     |> unique_constraint(:slug)
   end
 
+  def find(slug) do
+    from(s in Station,
+      where: s.slug == ^slug,
+      left_join: follower in StationFollower,
+      on: follower.station_id == s.id,
+      select: %{
+        s
+        | followers: fragment("count(?)", follower.user_id)
+      },
+      group_by: [s.id, follower.station_id],
+      order_by: [desc: fragment("count(?)", follower.user_id)]
+    )
+  end
+
   defp generate_slug(changeset) do
     case get_field(changeset, :visibility) do
       "private" -> put_change(changeset, :slug, Ecto.UUID.generate() |> binary_part(24, 8))
@@ -38,7 +53,19 @@ defmodule Ripple.Stations.Station do
   end
 
   def all_stations do
-    from(s in Station, left_join: creator in Ripple.Users.User, on: creator.id == s.creator_id)
+    from(s in Station,
+      left_join: creator in Ripple.Users.User,
+      on: creator.id == s.creator_id,
+      left_join: follower in StationFollower,
+      on: follower.station_id == s.id,
+      select: %{s | followers: fragment("count(?)", follower.user_id)},
+      group_by: [s.id, follower.station_id],
+      order_by: [desc: fragment("count(?)", follower.user_id)]
+    )
+  end
+
+  def with_slug(queryable \\ Station, slug) do
+    from(s in queryable, where: s.slug == ^slug)
   end
 
   def with_public_visibility(queryable \\ Station) do

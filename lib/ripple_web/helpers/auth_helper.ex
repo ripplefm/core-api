@@ -1,13 +1,15 @@
 defmodule RippleWeb.Helpers.AuthHelper do
+  alias Ripple.Users.User
+
   def set_current_user(conn, _) do
     with {:ok, claims} <- Map.fetch(conn.assigns, :joken_claims) do
-      current_user = %{
+      current_user = %User{
         scopes: claims["scopes"],
         username: claims["user"]["username"],
         id: claims["user"]["id"]
       }
 
-      Ripple.Users.upsert_user(current_user)
+      current_user |> Map.from_struct() |> Ripple.Users.upsert_user()
 
       conn |> Plug.Conn.assign(:current_user, current_user)
     else

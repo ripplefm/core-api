@@ -10,5 +10,6 @@ defmodule Ripple.Stations.LiveStation do
             guests: 0,
             users: [],
             current_track: %Track{},
-            queue: []
+            queue: [],
+            followers: 0
 end
