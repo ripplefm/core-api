@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2019-02-27
+
+### Fixed
+
+- priv directory path access in `seeds.exs` is not hardcoded anymore
+
 ## [0.1.8] - 2019-02-26
 
-## Added
+### Added
 
 - Endpoints for the `me` resource to retrieve current users
   created and followed stations/playlists
