@@ -58,7 +58,7 @@ defmodule Ripple.ReleaseTasks do
   end
 
   defp run_seeds_for(repo) do
-    seed_script = priv_for_path(repo, "seeds/seeds.exs")
+    seed_script = priv_path_for(repo, "seeds/seeds.exs")
 
     if File.exists?(seed_script) do
       IO.puts("Running seed script #{seed_script}")
