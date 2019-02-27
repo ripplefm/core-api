@@ -15,6 +15,14 @@ defmodule Ripple.ReleaseTasks do
     stop_services()
   end
 
+  def seed(_argv) do
+    start_services()
+
+    run_seeds()
+
+    stop_services()
+  end
+
   defp repos do
     Application.get_env(:ripple, :ecto_repos, [])
   end
@@ -38,11 +46,24 @@ defmodule Ripple.ReleaseTasks do
     Enum.each(repos(), &run_migrations_for/1)
   end
 
+  def run_seeds do
+    Enum.each(repos(), &run_seeds_for/1)
+  end
+
   defp run_migrations_for(repo) do
     app = Keyword.get(repo.config, :otp_app)
     IO.puts("Running migrations for #{app}")
     migrations_path = priv_path_for(repo, "migrations")
     Ecto.Migrator.run(repo, migrations_path, :up, all: true)
+  end
+
+  defp run_seeds_for(repo) do
+    seed_script = priv_path_for(repo, "seeds/seeds.exs")
+
+    if File.exists?(seed_script) do
+      IO.puts("Running seed script #{seed_script}")
+      Code.eval_file(seed_script)
+    end
   end
 
   defp priv_path_for(repo, filename) do

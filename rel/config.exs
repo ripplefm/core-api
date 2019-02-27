@@ -61,7 +61,7 @@ end
 release :ripple do
   set(version: current_version(:ripple))
 
-  set(commands: [migrate: "rel/commands/migrate.sh"])
+  set(commands: [migrate: "rel/commands/migrate.sh", seed: "rel/commands/seed.sh"])
 
   set(
     applications: [
