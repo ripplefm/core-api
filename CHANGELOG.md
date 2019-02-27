@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11] - 2019-02-27
+
+### Added
+
+- Seed release task, can be ran using `bin/ripple seed`
+
 ## [0.1.10] - 2019-02-27
 
 ### Fixed
