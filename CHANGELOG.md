@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2019-03-02
+
+### Fixed
+
+- Endpoints for user created stations now return valid information when a station is live
+- Follower count on live stations is now updated when a station is followed/unfollowed
+
 ## [0.2.0] - 2019-03-01
 
 ### Fixed
