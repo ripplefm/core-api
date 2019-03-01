@@ -41,6 +41,10 @@ defmodule Ripple.Stations.StationServer do
     GenServer.cast(via_tuple(slug), {:add_track, track_url, user})
   end
 
+  def increment_follower_count(slug, amount) do
+    GenServer.call(via_tuple(slug), {:increment_follower_count, amount})
+  end
+
   def get(slug), do: GenServer.call(via_tuple(slug), :get)
 
   def init({%Station{} = station, nil}) do
@@ -104,6 +108,16 @@ defmodule Ripple.Stations.StationServer do
     new_state = %LiveStation{state | users: filtered_users ++ [user]}
     emit_event(:station_user_joined, %{station: new_state, target: user})
     {:reply, :ok, new_state}
+  end
+
+  def handle_call(
+        {:increment_follower_count, amount},
+        _,
+        %LiveStation{followers: followers} = state
+      ) do
+    new_state = %LiveStation{state | followers: followers + amount}
+    emit_event(:station_follower_count_updated, %{station: new_state, target: new_state})
+    {:reply, new_state, new_state}
   end
 
   def handle_cast(

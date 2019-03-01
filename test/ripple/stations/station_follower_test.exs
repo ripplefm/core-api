@@ -2,7 +2,7 @@ defmodule Ripple.StationFollowerTest do
   use Ripple.DataCase
 
   alias Ripple.Stations
-  alias Ripple.Stations.StationFollower
+  alias Ripple.Stations.{StationFollower, StationServer}
 
   describe "Station Followers" do
     setup do
@@ -34,6 +34,17 @@ defmodule Ripple.StationFollowerTest do
       assert {:error, :already_following} == Stations.follow_station(station, user)
     end
 
+    test "follow_station/2 increments follow count for live station", %{
+      station: station,
+      user: user
+    } do
+      StationServer.start(station, user)
+      assert %{followers: 0} = StationServer.get(station.slug)
+
+      Stations.follow_station(station, user)
+      assert %{followers: 1} = StationServer.get(station.slug)
+    end
+
     test "unfollow_station/2 sucessfully unfollows a station", %{station: station, user: user} do
       {:ok, %StationFollower{}} = Stations.follow_station(station, user)
 
@@ -51,6 +62,18 @@ defmodule Ripple.StationFollowerTest do
       user: user
     } do
       assert {:error, :not_following} == Stations.unfollow_station(station, user)
+    end
+
+    test "unfollow_station/2 decrements follower count for live station", %{
+      station: station,
+      user: user
+    } do
+      StationServer.start(station, user)
+      {:ok, %StationFollower{}} = Stations.follow_station(station, user)
+      assert %{followers: 1} = StationServer.get(station.slug)
+
+      :ok = Stations.unfollow_station(station, user)
+      assert %{followers: 0} = StationServer.get(station.slug)
     end
 
     test "is_followed_by?/2 returns true when following station", %{station: station, user: user} do

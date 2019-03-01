@@ -2,7 +2,14 @@ defmodule Ripple.Stations do
   import Ecto.Query, warn: false
   alias Ripple.Repo
 
-  alias Ripple.Stations.{Station, StationStore, StationTrackHistory, StationFollower}
+  alias Ripple.Stations.{
+    Station,
+    StationStore,
+    StationTrackHistory,
+    StationFollower,
+    StationServer
+  }
+
   alias Ripple.Users.User
 
   def list_stations do
@@ -26,10 +33,11 @@ defmodule Ripple.Stations do
     Station.all_stations()
     |> Station.created_by(user.id)
     |> Repo.all()
+    |> convert_to_live
   end
 
   def get_stations_followed_by(%User{} = user) do
-    Station.all_stations() |> Station.followed_by(user.id) |> Repo.all()
+    Station.all_stations() |> Station.followed_by(user.id) |> Repo.all() |> convert_to_live
   end
 
   def create_station(attrs \\ %{}) do
@@ -77,18 +85,28 @@ defmodule Ripple.Stations do
     |> Repo.all()
   end
 
-  def follow_station(%{id: station_id}, %User{} = user) do
-    StationFollower.build(station_id, user.id) |> Repo.insert()
+  def follow_station(%{id: station_id, slug: slug}, %User{} = user) do
+    with {:ok, %StationFollower{}} = follower <-
+           StationFollower.build(station_id, user.id) |> Repo.insert() do
+      if StationServer.is_running?(slug) do
+        StationServer.increment_follower_count(slug, 1)
+      end
+
+      follower
+    end
   rescue
     Ecto.ConstraintError -> {:error, :already_following}
     _ -> {:error, :not_found}
   end
 
-  def unfollow_station(%{id: station_id}, %User{} = user) do
-    result = StationFollower.find(station_id, user.id) |> Repo.delete_all()
+  def unfollow_station(%{id: station_id, slug: slug}, %User{} = user) do
+    with {1, nil} <- StationFollower.find(station_id, user.id) |> Repo.delete_all() do
+      if StationServer.is_running?(slug) do
+        StationServer.increment_follower_count(slug, -1)
+      end
 
-    case result do
-      {1, nil} -> :ok
+      :ok
+    else
       {0, nil} -> {:error, :not_following}
       _ -> {:error, :not_found}
     end
@@ -99,5 +117,15 @@ defmodule Ripple.Stations do
       %StationFollower{} -> true
       nil -> false
     end
+  end
+
+  defp convert_to_live(stations) do
+    stations
+    |> Enum.map(fn s ->
+      case StationServer.is_running?(s.slug) do
+        true -> StationServer.get(s.slug)
+        false -> s
+      end
+    end)
   end
 end

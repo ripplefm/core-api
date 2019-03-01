@@ -35,7 +35,8 @@ config :event_bus,
     :station_user_left,
     :station_track_started,
     :station_track_finished,
-    :station_queue_track_added
+    :station_queue_track_added,
+    :station_follower_count_updated
   ]
 
 # Import environment specific config. This must remain at the bottom
