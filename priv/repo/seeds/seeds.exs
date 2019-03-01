@@ -1,6 +1,6 @@
 # Script for populating the database. You can run it as:
 #
-#     mix run priv/repo/seeds.exs
+#     mix run priv/repo/seeds/seeds.exs
 
 # Load templates
 {station_templates, _} =
