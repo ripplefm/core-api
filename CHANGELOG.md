@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2019-03-01
+
+### Fixed
+
+- Stations context had functions that required `Station` struct but were sometimes passed a `LiveStation` struct and threw `FunctionClauseErrors`
+
+### Added
+
+- Endpoint and Station context function to check if the current user is following a station
+
 ## [0.1.11] - 2019-02-27
 
 ### Added
