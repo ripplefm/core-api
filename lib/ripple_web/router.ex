@@ -32,5 +32,6 @@ defmodule RippleWeb.Router do
     get("/me/stations/following", MeController, :show_following_stations)
     get("/me/playlists", MeController, :show_created_playlists)
     get("/me/playlists/following", MeController, :show_following_playlists)
+    get("/me/stations/:slug/following", MeController, :get_is_following_station, param: "slug")
   end
 end

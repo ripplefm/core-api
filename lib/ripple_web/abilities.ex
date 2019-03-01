@@ -8,7 +8,7 @@ defimpl Canada.Can, for: Ripple.Users.User do
   end
 
   def can?(%{scopes: scopes}, action, Station)
-      when action in [:show_created_stations, :show_following_stations],
+      when action in [:show_created_stations, :show_following_stations, :get_is_following_station],
       do: "stations:read" in scopes or "stations:write" in scopes
 
   def can?(%{scopes: scopes}, action, StationFollower) when action in [:create, :delete] do
