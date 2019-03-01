@@ -176,4 +176,60 @@ defmodule RippleWeb.MeControllerTest do
       assert json_response(conn, 200)["playlists"] != []
     end
   end
+
+  describe "get_is_following_station" do
+    test "401 when missing auth header", %{conn: conn} do
+      conn = get(conn, me_path(conn, :get_is_following_station, "test"))
+      assert conn.status == 401
+      assert conn.assigns.current_user == nil
+    end
+
+    test "401 when missing 'stations:read' scope", %{conn: conn} do
+      token = token_fixture()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> get(me_path(conn, :get_is_following_station, "test"))
+
+      assert ["Bearer #{token}"] == get_req_header(conn, "authorization")
+
+      assert json_response(conn, 401) == %{
+               "errors" => %{"detail" => "Invalid scopes for resource."}
+             }
+    end
+
+    @tag :authenticated
+    test "true when following station", %{conn: conn} do
+      user = Ripple.Users.get_user("tester")
+      station = station_fixture()
+      {:ok, _} = Stations.follow_station(station, user)
+
+      conn = get(conn, me_path(conn, :get_is_following_station, station.slug))
+
+      assert json_response(conn, 200) == %{
+               "following" => true
+             }
+    end
+
+    @tag :authenticated
+    test "false when not following station", %{conn: conn} do
+      station = station_fixture()
+
+      conn = get(conn, me_path(conn, :get_is_following_station, station.slug))
+
+      assert json_response(conn, 200) == %{
+               "following" => false
+             }
+    end
+
+    @tag :authenticated
+    test "404 when station does not exist", %{conn: conn} do
+      conn = get(conn, me_path(conn, :get_is_following_station, "no-station"))
+
+      assert json_response(conn, 404) == %{
+               "errors" => %{"detail" => "Page not found"}
+             }
+    end
+  end
 end

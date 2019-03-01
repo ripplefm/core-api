@@ -52,5 +52,17 @@ defmodule Ripple.StationFollowerTest do
     } do
       assert {:error, :not_following} == Stations.unfollow_station(station, user)
     end
+
+    test "is_followed_by?/2 returns true when following station", %{station: station, user: user} do
+      {:ok, _} = Stations.follow_station(station, user)
+      assert Stations.is_followed_by?(station, user) == true
+    end
+
+    test "is_followed_by?/2 returns false when not following station", %{
+      station: station,
+      user: user
+    } do
+      assert Stations.is_followed_by?(station, user) == false
+    end
   end
 end

@@ -67,30 +67,37 @@ defmodule Ripple.Stations do
     end
   end
 
-  defp get_history_for(%Station{} = station, nil) do
-    StationTrackHistory.for_station(station.id) |> Repo.all()
+  defp get_history_for(%{id: station_id}, nil) do
+    StationTrackHistory.for_station(station_id) |> Repo.all()
   end
 
-  defp get_history_for(%Station{} = station, last_timestamp) do
-    StationTrackHistory.for_station(station.id)
+  defp get_history_for(%{id: station_id}, last_timestamp) do
+    StationTrackHistory.for_station(station_id)
     |> StationTrackHistory.older_than(last_timestamp)
     |> Repo.all()
   end
 
-  def follow_station(%Station{} = station, %User{} = user) do
-    StationFollower.build(station.id, user.id) |> Repo.insert()
+  def follow_station(%{id: station_id}, %User{} = user) do
+    StationFollower.build(station_id, user.id) |> Repo.insert()
   rescue
     Ecto.ConstraintError -> {:error, :already_following}
     _ -> {:error, :not_found}
   end
 
-  def unfollow_station(%Station{} = station, %User{} = user) do
-    result = StationFollower.find(station.id, user.id) |> Repo.delete_all()
+  def unfollow_station(%{id: station_id}, %User{} = user) do
+    result = StationFollower.find(station_id, user.id) |> Repo.delete_all()
 
     case result do
       {1, nil} -> :ok
       {0, nil} -> {:error, :not_following}
       _ -> {:error, :not_found}
+    end
+  end
+
+  def is_followed_by?(%{id: station_id}, %User{} = user) do
+    case StationFollower.find(station_id, user.id) |> Repo.one() do
+      %StationFollower{} -> true
+      nil -> false
     end
   end
 end
