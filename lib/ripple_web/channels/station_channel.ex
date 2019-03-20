@@ -5,6 +5,8 @@ defmodule RippleWeb.StationChannel do
   alias Ripple.Stations.{StationStore, StationServer}
   alias RippleWeb.Helpers.ChatHelper
 
+  @allowed_reactions ["fire", "thumbs-up", "thumbs-down", "rock-on", "poop"]
+
   def join("stations:" <> slug, _payload, socket) do
     case StationStore.read(slug) do
       {:ok, nil} ->
@@ -40,6 +42,20 @@ defmodule RippleWeb.StationChannel do
       broadcast(socket, "station_chat", %{
         sender: socket.assigns.current_user,
         message: ChatHelper.process(text)
+      })
+    end
+
+    {:noreply, socket}
+  end
+
+  def handle_in("reaction", %{"reaction" => reaction}, socket) do
+    station = socket |> get_slug |> StationServer.get()
+
+    unless socket.assigns.current_user == nil or reaction not in @allowed_reactions or
+             station.current_track == nil do
+      broadcast(socket, "station_reaction", %{
+        sender: socket.assigns.current_user,
+        reaction: reaction
       })
     end
 
