@@ -4,7 +4,7 @@ defmodule Ripple.Tracks.Providers.YouTube do
   end
 
   def base_url(resource, query) do
-    "https://www.googleapis.com/youtube/v3/#{resource}?#{query}&maxResults=15&key=#{api_key()}"
+    "https://www.googleapis.com/youtube/v3/#{resource}?#{query}&maxResults=50&key=#{api_key()}"
   end
 
   def make_request(resource \\ "search", query \\ "") do
@@ -21,7 +21,40 @@ defmodule Ripple.Tracks.Providers.YouTube do
     |> parse_track(url)
   end
 
-  def get_playlist_videos(url) do
+  def get_playlist_videos(url, full_playlist \\ true) do
+    playlist = URI.parse(url).query |> URI.decode_query() |> Map.get("list")
+
+    response =
+      make_request("playlistItems", "part=snippet,contentDetails,status&playlistId=#{playlist}").body
+      |> Poison.decode!()
+
+    results_per_page = Map.get(response, "pageInfo") |> Map.get("resultsPerPage")
+    total_results = Map.get(response, "pageInfo") |> Map.get("totalResults")
+
+    pages = (total_results / results_per_page) |> Float.ceil() |> round
+
+    {items, _} =
+      Enum.reduce(
+        1..pages,
+        {Map.get(response, "items"), Map.get(response, "nextPageToken")},
+        fn _, {items, next_page_token} ->
+          res =
+            make_request(
+              "playlistItems",
+              "part=snippet,contentDetails,status&playlistId=#{playlist}&pageToken=#{
+                next_page_token
+              }"
+            ).body
+            |> Poison.decode!()
+
+          {items ++ Map.get(res, "items"), Map.get(res, "nextPageToken")}
+        end
+      )
+
+    Enum.uniq(items)
+  end
+
+  def get_playlist_videos(url, false) do
     playlist = URI.parse(url).query |> URI.decode_query() |> Map.get("list")
 
     make_request("playlistItems", "part=snippet,contentDetails,status&playlistId=#{playlist}")
@@ -52,8 +85,7 @@ defmodule Ripple.Tracks.Providers.YouTube do
       |> Map.get("relatedPlaylists")
       |> Map.get("uploads")
 
-    make_request("playlistItems", "part=snippet,contentDetails,status&playlistId=#{playlist}")
-    |> process_body
+    get_playlist_videos("https://youtube.com/playlist?list=#{playlist}")
   end
 
   defp parse_id(url) do

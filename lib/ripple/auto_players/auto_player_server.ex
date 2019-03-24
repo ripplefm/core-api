@@ -32,7 +32,7 @@ defmodule Ripple.AutoPlayers.AutoPlayerServer do
     end
 
     {:ok, current_state} = Ripple.Stations.get_station(station.slug)
-    sleep_duration = max(current_state.current_track.duration - 2_000, 0)
+    sleep_duration = max(current_state.current_track.duration - 4_000, 0)
     Process.send_after(self(), :pick_track, sleep_duration)
     {:noreply, state}
   end
