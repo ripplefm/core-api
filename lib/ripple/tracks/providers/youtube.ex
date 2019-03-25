@@ -21,7 +21,16 @@ defmodule Ripple.Tracks.Providers.YouTube do
     |> parse_track(url)
   end
 
-  def get_playlist_videos(url, full_playlist \\ true) do
+  def get_playlist_videos(url, full_playlist \\ true)
+
+  def get_playlist_videos(url, false) do
+    playlist = URI.parse(url).query |> URI.decode_query() |> Map.get("list")
+
+    make_request("playlistItems", "part=snippet,contentDetails,status&playlistId=#{playlist}")
+    |> process_body
+  end
+
+  def get_playlist_videos(url, true) do
     playlist = URI.parse(url).query |> URI.decode_query() |> Map.get("list")
 
     response =
@@ -52,13 +61,6 @@ defmodule Ripple.Tracks.Providers.YouTube do
       )
 
     Enum.uniq(items)
-  end
-
-  def get_playlist_videos(url, false) do
-    playlist = URI.parse(url).query |> URI.decode_query() |> Map.get("list")
-
-    make_request("playlistItems", "part=snippet,contentDetails,status&playlistId=#{playlist}")
-    |> process_body
   end
 
   def get_related_videos(url) do

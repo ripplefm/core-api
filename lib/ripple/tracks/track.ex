@@ -3,7 +3,7 @@ defmodule Ripple.Tracks.Track do
   import Ecto.Changeset
   alias Ripple.Tracks.Track
 
-  @derive {Poison.Encoder, except: []}
+  @derive {Poison.Encoder, except: [:__meta__, :__struct__]}
   schema "tracks" do
     field(:artwork_url, :string, default: nil)
     field(:duration, :integer)

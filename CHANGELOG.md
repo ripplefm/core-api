@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2019-03-24
+
+### Fixed
+
+- StationBroadcaster no longer crashes when trying to encode track struct as a json object
+
 ## [0.4.0] - 2019-03-24
 
 ### Changed
